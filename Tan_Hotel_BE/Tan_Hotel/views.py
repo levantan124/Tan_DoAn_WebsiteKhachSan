@@ -330,7 +330,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
 
     def get_permissions(self):
         # Phân quyền theo action
-        if self.action in ['list', 'create']:
+        if self.action in ['list']:
             if self.request.user.is_authenticated and self.request.user.role == Account.Roles.LETAN:
                 return [permissions.IsAuthenticated()]
             else:
@@ -374,7 +374,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
         serializer.is_valid(raise_exception=True)
 
         # Cập nhật phòng nếu có room_id trong request data
-        room_id = request.data.get('room_id')
+        room_id = request.data.get('room')
         if room_id:
             try:
                 room = Room.objects.get(id=room_id)
@@ -393,13 +393,14 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
 
     def create(self, request, *args, **kwargs):
         # Tạo mới reservation
-        guest_name = request.data.get('guest')
-        guest = Account.objects.get(username=guest_name)
-        room_id = request.data.get('room_id')
+        guest= request.user
+        # guest_name = request.data.get('guest')
+        # guest = Account.objects.get(pk=user)
+        room_id = request.data.get('room')
 
-        if not guest_name or not room_id:
-            return Response({'detail': 'Customer ID and Room ID are required.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        # if not guest_name or not room_id:
+        #     return Response({'detail': 'Customer ID and Room ID are required.'},
+        #                     status=status.HTTP_400_BAD_REQUEST)
 
         try:
             room = Room.objects.get(id=room_id)
@@ -412,7 +413,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
 
         reservation = Reservation.objects.create(
             guest=guest,
-            bookDate=request.data.get('bookDate'),
+            book_date=request.data.get('book_date'),
             checkin=request.data.get('checkin'),
             checkout=request.data.get('checkout'),
             active=True

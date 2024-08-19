@@ -21,6 +21,7 @@ const NavBar = () => {
   return (
     <nav css={navStyle}>
       <div css={logoStyle}>Tan_Hotel</div>
+     
       <ul css={navLinksStyle}>
         <li><Link to="/" css={linkStyle}>Trang chủ</Link></li>
         <li><Link to="/booking" css={linkStyle}>Đặt phòng</Link></li>
@@ -28,6 +29,12 @@ const NavBar = () => {
           <>
             <li><Link to="/info" css={linkStyle}>{user.name}</Link></li>
             <li><Link to="/" onClick={handleLogout} css={linkStyle}>Đăng xuất</Link></li>
+            {user.role === 2 && (
+              <>
+                <li><Link to="/reservations-list/" css={linkStyle}>QL phiếu đặt phòng</Link></li>
+                <li><Link to="/services-list/" css={linkStyle}>QL dịch vụ</Link></li>
+              </>
+            )}
           </>
         ) : (
           <li><Link to="/login" css={linkStyle}>Đăng nhập</Link></li>

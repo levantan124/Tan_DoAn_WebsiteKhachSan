@@ -43,7 +43,7 @@ export const authAPI = () => {
         baseURL: BASE_URL,
         headers: {
             'Authorization': `Bearer ${token}`,
-            "Content-Type": `Application/json`
+            // "Content-Type": `Application/json`
         }
     });
 };

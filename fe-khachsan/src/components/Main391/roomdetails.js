@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
-
+import cookie from "react-cookies";
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 
 const RoomDetails = () => {
@@ -72,10 +72,34 @@ const RoomDetails = () => {
     infinite: true,
     speed: 500,
     autoplay: true,
-    autoplaySpeed: 3000, // Thay đổi thời gian tự di chuyển
+    autoplaySpeed: 3000,
     slidesToScroll: 1,
     prevArrow: <CustomPrevArrow />,
     nextArrow: <CustomNextArrow />
+  };
+
+  const handleBookRoom = async () => {
+    try {
+      const token = cookie.load('token');
+      console.log(token)
+      const response = await authAPI().post('/reservations/', {
+        room: room.id,
+        book_date: new Date().toISOString().split('T')[0],
+        checkin: checkInDate,
+        checkout: checkOutDate,
+      
+      headers: {
+            // 'Authorization': `Bearer ${token}`,
+            "Content-Type": `Application/json`
+        }
+      }
+    );
+      alert("Đặt phòng thành công!");
+      console.log("Reservation response:", response.data);
+    } catch (error) {
+      console.error("Failed to book room:", error);
+      alert("Đặt phòng thất bại. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -125,7 +149,7 @@ const RoomDetails = () => {
               />
             </label>
           </div>
-          <button css={bookButtonStyle}>Đặt phòng</button>
+          <button onClick={handleBookRoom} css={bookButtonStyle}>Đặt phòng</button>
         </div>
       </div>
     </section>
@@ -168,25 +192,25 @@ const detailsStyle = css`
 const sliderWrapperStyle = css`
   position: relative;
   flex: 1;
-  width: 100%; /* Đặt chiều rộng của slider là 100% của phần tử chứa nó */
-  max-width: 600px; /* Chiều rộng tối đa của slider */
+  width: 100%;
+  max-width: 600px;
   border-radius: 10px;
   overflow: hidden;
-  max-height: 400px; /* Chiều cao tối đa của slider */
+  max-height: 400px;
 `;
 
 const slideStyle = css`
   display: flex;
-  align-items: center; /* Đảm bảo hình ảnh được căn giữa */
-  justify-content: center; /* Căn giữa hình ảnh */
-  padding: 0; /* Loại bỏ padding để không có khoảng cách giữa các slide */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 `;
 
 const imageStyle = css`
-  width: 100%; /* Đặt chiều rộng của hình ảnh là 100% của phần tử chứa */
+  width: 100%;
   height: auto;
-  object-fit: cover; /* Đảm bảo hình ảnh không bị méo mó */
-  max-height: 400px; /* Đặt chiều cao tối đa của hình ảnh để tránh bị chồng lên nhau */
+  object-fit: cover;
+  max-height: 400px;
 `;
 
 const infoStyle = css`
@@ -250,16 +274,15 @@ const bookButtonStyle = css`
 `;
 
 const arrowStyle = css`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  color: white;
   border: none;
-  font-size: 24px;
-  cursor: pointer;
   border-radius: 50%;
+  padding: 10px;
+  font-size: 18px;
+  cursor: pointer;
   transition: background 0.3s ease;
   &:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: #0056b3;
   }
 `;
 

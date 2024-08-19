@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { endpoints, authAPI } from '../../configs391/API391';
@@ -138,23 +138,6 @@ const quantityAndButtonStyle = css`
   margin-top: 0.5rem;
 `;
 
-const hoverAnimation = keyframes`
-  0% {
-    transform: scale(0.7, 1.3);
-  }
-  25% {
-    transform: scale(1.1, 0.9);
-  }
-  50% {
-    transform: scale(0.9, 1.1);
-  }
-  75% {
-    transform: scale(1.1, 0.9);
-  }
-  100% {
-    transform: scale(1, 1);
-  }
-`;
 
 const bookingButtonStyle = css`
   touch-action: manipulation;

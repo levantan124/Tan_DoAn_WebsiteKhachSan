@@ -10,6 +10,12 @@ import Footer391 from "./components/Footer391/footer";
 import LogIn391 from "./components/Accounts391/login";
 import Info391 from "./components/Navbar391/info";
 import RoomDetails391 from './components/Main391/roomdetails';
+
+// STAFF
+import ServiceList391 from "./components/Staff391/ServiceList391"
+import ReservationList391 from "./components/Staff391/ReservationList391"
+
+
 import { MyUserContext, MyDispatchContext } from "./configs391/Context391";
 
 
@@ -21,16 +27,18 @@ const App = () => {
     <MyUserContext.Provider value={user}>
         <Router>
           <Navbar />
-          <Header391 />
+          {/* <Header391 /> */}
           <Routes>
             <Route path="/" element={<Popular391 />} />
             <Route path="/login" element={<LogIn391 />} />
             <Route path="/info" element={<Info391 />} />
             <Route path="/room/:id" element={<RoomDetails391 />} />
+            <Route path="/services-list" element={<ServiceList391 />} />
+            <Route path="/reservations-list" element={<ReservationList391 />} />
           </Routes>
-          <Client391 />
+          {/* <Client391 />
           <Reward391 />
-          <Footer391 />
+          <Footer391 /> */}
         </Router>
     </MyUserContext.Provider>
   );

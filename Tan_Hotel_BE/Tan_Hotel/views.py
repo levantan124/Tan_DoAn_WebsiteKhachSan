@@ -4,6 +4,7 @@ from rest_framework import viewsets, generics, parsers, permissions, exceptions,
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (
     Tan_AccountSerializer, Tan_RoomTypeSerializer, Tan_RoomSerializer, Tan_RoomImageSerializer, Tan_ServiceSerializer,
@@ -263,9 +264,6 @@ class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a new RoomImage instance.
-        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -273,9 +271,6 @@ class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, *args, **kwargs):
-        """
-        Partially update a RoomImage instance.
-        """
         pk = self.kwargs.get('pk')
         try:
             room_image = self.queryset.get(pk=pk)
@@ -394,13 +389,8 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
     def create(self, request, *args, **kwargs):
         # Tạo mới reservation
         guest= request.user
-        # guest_name = request.data.get('guest')
-        # guest = Account.objects.get(pk=user)
         room_id = request.data.get('room')
 
-        # if not guest_name or not room_id:
-        #     return Response({'detail': 'Customer ID and Room ID are required.'},
-        #                     status=status.HTTP_400_BAD_REQUEST)
 
         try:
             room = Room.objects.get(id=room_id)
@@ -533,16 +523,94 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
     def check_in(self, request, pk=None):
         # Xác nhận check-in
         reservation = Reservation.objects.get(pk=pk)
-        reservation.statusCheckin = True
+        reservation.status_checkin = True
         reservation.save()
 
         return Response({"detail": "Check-in completed successfully."}, status=status.HTTP_200_OK)
 
 
 
-class Tan_ReservationServiceViewSet(viewsets.ModelViewSet):
+class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView,generics.UpdateAPIView):
     queryset = ReservationService.objects.all()
     serializer_class = Tan_ReservationServiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create', 'list', 'update_active']:
+            # Chỉ cho phép người dùng có vai trò 'Lễ tân' sử dụng phương thức 'create'
+            if not (self.request.user.is_authenticated and
+                    self.request.user.role == Account.Roles.LETAN):
+                raise PermissionDenied("Only Receptionists can perform this action.")
+            return [permissions.IsAuthenticated()]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            # Cũng có thể đặt quyền cho các hành động khác nếu cần
+            if not (self.request.user.is_authenticated and
+                    self.request.user.role == Account.Roles.ADMIN):
+                raise PermissionDenied("Only Admins can perform this action.")
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def create(self, request, *args, **kwargs):
+        reservation_id = request.data.get('reservationId')
+        service_id = request.data.get('service')
+        quantity = int(request.data.get('quantity', 1))
+
+        try:
+            reservation = Reservation.objects.get(id=reservation_id)
+            service = Service.objects.get(id=service_id)
+        except (Reservation.DoesNotExist, Service.DoesNotExist):
+            return Response({"detail": "Reservation or Service not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if not reservation.active:
+            return Response({"detail": "Reservation is not active."}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_price = service.price * quantity
+
+        reservation_service = ReservationService.objects.create(
+            reservation=reservation,
+            service=service,
+            quantity=quantity,
+            total_price=total_price
+        )
+
+        serializer = self.get_serializer(reservation_service)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        # Lọc các reservation đang active
+        active_reservations = Reservation.objects.filter(active=True)
+        active_services = Service.objects.filter(active=True)
+        # Lọc reservation services thuộc các reservation đang active
+        queryset = ReservationService.objects.filter(
+            active=True,
+            reservation__in=active_reservations,
+            service__in=active_services
+        )
+
+        # Serialize dữ liệu
+        serializer = self.get_serializer(queryset, many=True)
+
+        # Trả về phản hồi với dữ liệu đã được serialize
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        try:
+            # Lấy đối tượng ReservationService theo id
+            instance = self.get_object()
+        except ReservationService.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Cập nhật trường active
+        active = request.data.get('active', None)
+
+        if active is not None:
+            instance.active = active
+            instance.save()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'detail': 'Field "active" is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class Tan_BillViewSet(viewsets.ModelViewSet):
     queryset = Bill.objects.all()

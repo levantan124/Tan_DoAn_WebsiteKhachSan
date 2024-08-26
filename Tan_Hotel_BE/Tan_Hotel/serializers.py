@@ -76,10 +76,18 @@ class Tan_ReservationSerializer(serializers.ModelSerializer):
 
 # Serializer cho ReservationService
 class Tan_ReservationServiceSerializer(serializers.ModelSerializer):
+    service = serializers.SlugRelatedField(slug_field='id', queryset=Service.objects.all())
+    price = serializers.CharField(source='service.price', read_only=True)
+    guest_name = serializers.CharField(source='reservation.guest.username', read_only=True)
+    room_names = serializers.SerializerMethodField()
+    nameService = serializers.CharField(source='service.name', read_only=True)
+
     class Meta:
         model = ReservationService
         fields = '__all__'
 
+    def get_room_names(self, obj):
+        return ", ".join(obj.reservation.room.values_list('name', flat=True))
 
 # Serializer cho Bill
 class Tan_BillSerializer(serializers.ModelSerializer):

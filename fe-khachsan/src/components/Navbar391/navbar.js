@@ -35,6 +35,9 @@ const NavBar = () => {
                 <li><Link to="/services-list/" css={linkStyle}>QL dịch vụ</Link></li>
               </>
             )}
+            {(user.is_superuser || user.role === 1) && (
+              <li><Link to="/existing-rooms" css={linkStyle}>QL Phòng</Link></li>
+            )}
           </>
         ) : (
           <li><Link to="/login" css={linkStyle}>Đăng nhập</Link></li>

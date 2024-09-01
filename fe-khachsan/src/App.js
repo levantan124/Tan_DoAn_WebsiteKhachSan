@@ -19,6 +19,10 @@ import AddService391 from "./components/Staff391/AddService391"
 
 //ADMIN
 import Admin391 from "./components/Admin391/admin"
+import ExistingRooms391 from "./components/Admin391/Service/existingservices"
+import ExistingRoomTypes391 from "./components/Admin391/Roomtype/existingroomtypes"
+import ExistingServices391 from "./components/Admin391/Service/existingservices"
+import ExistingAccounts391 from "./components/Admin391/Accounts/existingaccounts"
 
 
 import { MyUserContext, MyDispatchContext } from "./configs391/Context391";
@@ -44,6 +48,10 @@ const App = () => {
             <Route path="/add-services/:id" element={<AddService391 />} />
 
             <Route path="/admin" element={<Admin391 />} />
+            <Route path="/existing-rooms" element={<ExistingRooms391 />} />
+            <Route path="/existing-roomtypes" element={<ExistingRoomTypes391 />} />
+            <Route path="/existing-services" element={<ExistingServices391 />} />
+            <Route path="/existing-accounts" element={<ExistingAccounts391 />} />
           </Routes>
           {/* <Client391 />
           <Reward391 />

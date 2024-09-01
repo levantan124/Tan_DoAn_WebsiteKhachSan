@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { authAPI } from '../../configs391/API391';
 import { FaEdit } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const ReservationList391 = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Hook dùng để điều hướng
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -25,14 +27,26 @@ const ReservationList391 = () => {
   }, []);
 
   const handleCheckInStatus = async (id, currentStatus) => {
+    const confirmationMessage = currentStatus
+      ? "Bạn có chắc xóa nhận phòng không?"
+      : "Bạn có chắc nhận phòng không?";
+
+    const confirmed = window.confirm(confirmationMessage);
+
+    if (!confirmed) return;
+
     try {
-      await authAPI().patch(`/reservations/${id}/`, { status_checkin: !currentStatus });
+      await authAPI().post(`/reservations/${id}/check-in-status/`, { status_checkin: !currentStatus });
       setReservations(reservations.map(reservation =>
         reservation.id === id ? { ...reservation, status_checkin: !currentStatus } : reservation
       ));
     } catch (error) {
       setError('Error updating check-in status');
     }
+  };
+
+  const handleAddServices = (id) => {
+    navigate(`/add-services/${id}`);
   };
 
   if (loading) return <div css={loadingStyle}>Loading...</div>;
@@ -51,7 +65,7 @@ const ReservationList391 = () => {
               <th css={thStyle}>Ngày trả phòng</th>
               <th css={thStyle}>Phòng</th>
               <th css={thStyle}>Trạng thái nhận phòng</th>
-              <th css={thStyle}>Thao tác</th>
+              <th css={thStyle}>Thêm dịch vụ</th>
             </tr>
           </thead>
           <tbody>
@@ -71,8 +85,8 @@ const ReservationList391 = () => {
                   />
                 </td>
                 <td css={tdStyle}>
-                  <button css={iconButtonStyle} onClick={() => alert('Chỉnh sửa thông tin')}>
-                    <FaEdit css={iconStyle} />
+                  <button css={iconButtonStyle} onClick={() => handleAddServices(reservation.id)}>
+                  <FaEdit css={iconStyle} />
                   </button>
                 </td>
               </tr>
@@ -123,6 +137,11 @@ const thStyle = css`
   border-bottom: 2px solid #1b4f72;
 `;
 
+const iconStyle = css`
+  font-size: 16px;
+`;
+
+
 const tdStyle = css`
   padding: 15px;
   border-bottom: 1px solid #e0e0e0;
@@ -147,10 +166,6 @@ const iconButtonStyle = css`
   &:hover {
     color: #1b4f72;
   }
-`;
-
-const iconStyle = css`
-  font-size: 20px;
 `;
 
 const checkboxStyle = css`

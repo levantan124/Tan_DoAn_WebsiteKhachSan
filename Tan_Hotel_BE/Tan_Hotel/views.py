@@ -23,7 +23,7 @@ from .models import (
 
 
 
-class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListAPIView):
+class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListAPIView, generics.RetrieveAPIView):
     queryset = Account.objects.filter(is_active=True).all()
     serializer_class = Tan_AccountSerializer
     parser_classes = [parsers.MultiPartParser, parsers.JSONParser]  # upload được hình ảnh và làm việc với json
@@ -51,6 +51,10 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
                     raise exceptions.PermissionDenied()
         elif self.action in ['delete_staff']:
             permission_classes = [perm.Tan_IsAdmin()]
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        return Account.objects.filter(is_active=True)
 
     # API xem chi tiet + cap nhat tai khoan
     @action(methods=['get', 'patch'], url_path='current-user', detail=False)
@@ -521,13 +525,18 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
 
     @action(detail=True, methods=['post'], url_path='check-in-status')
     def check_in(self, request, pk=None):
-        # Xác nhận check-in
-        reservation = Reservation.objects.get(pk=pk)
-        reservation.status_checkin = True
-        reservation.save()
+        # Lấy giá trị status_checkin từ request data
+        status_checkin = request.data.get('status_checkin')
 
-        return Response({"detail": "Check-in completed successfully."}, status=status.HTTP_200_OK)
+        # Xác nhận rằng giá trị này không rỗng và là một boolean
+        if status_checkin is not None and isinstance(status_checkin, bool):
+            reservation = Reservation.objects.get(pk=pk)
+            reservation.status_checkin = status_checkin
+            reservation.save()
 
+            return Response({"detail": "Check-in status updated successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Invalid status_checkin value."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView,generics.UpdateAPIView):
@@ -551,7 +560,7 @@ class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView
         return [permissions.AllowAny()]
 
     def create(self, request, *args, **kwargs):
-        reservation_id = request.data.get('reservationId')
+        reservation_id = request.data.get('reservation')
         service_id = request.data.get('service')
         quantity = int(request.data.get('quantity', 1))
 

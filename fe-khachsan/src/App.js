@@ -14,6 +14,11 @@ import RoomDetails391 from './components/Main391/roomdetails';
 // STAFF
 import ServiceList391 from "./components/Staff391/ServiceList391"
 import ReservationList391 from "./components/Staff391/ReservationList391"
+import AddService391 from "./components/Staff391/AddService391"
+
+
+//ADMIN
+import Admin391 from "./components/Admin391/admin"
 
 
 import { MyUserContext, MyDispatchContext } from "./configs391/Context391";
@@ -33,8 +38,12 @@ const App = () => {
             <Route path="/login" element={<LogIn391 />} />
             <Route path="/info" element={<Info391 />} />
             <Route path="/room/:id" element={<RoomDetails391 />} />
+
             <Route path="/services-list" element={<ServiceList391 />} />
             <Route path="/reservations-list" element={<ReservationList391 />} />
+            <Route path="/add-services/:id" element={<AddService391 />} />
+
+            <Route path="/admin" element={<Admin391 />} />
           </Routes>
           {/* <Client391 />
           <Reward391 />

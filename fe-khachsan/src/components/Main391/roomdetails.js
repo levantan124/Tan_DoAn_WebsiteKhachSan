@@ -5,7 +5,9 @@ import { useParams } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
 import cookie from "react-cookies";
+
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
+const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zrow3vckdxfp7f0k.jpg`;
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -60,12 +62,14 @@ const RoomDetails = () => {
     }
   }, [checkInDate, numberOfNights]);
 
-  if (!room || !roomTypes.length || !roomImages) return <p>Loading...</p>;
+  if (!room || !roomTypes.length) return <p>Loading...</p>;
 
   const roomType = roomTypes.find(rt => rt.id === room.room_type);
   const price = roomType ? roomType.price : 'N/A';
 
-  const imageUrls = roomImages ? [roomImages.image1, roomImages.image2, roomImages.image3, roomImages.image4].map(img => `${CLOUDINARY_BASE_URL}${img}`) : [];
+  const imageUrls = roomImages
+    ? [roomImages.image1, roomImages.image2, roomImages.image3, roomImages.image4].map(img => `${CLOUDINARY_BASE_URL}${img}`)
+    : [DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL,DEFAULT_IMAGE_URL,DEFAULT_IMAGE_URL]; 
 
   const sliderSettings = {
     dots: true,
@@ -81,19 +85,17 @@ const RoomDetails = () => {
   const handleBookRoom = async () => {
     try {
       const token = cookie.load('token');
-      console.log(token)
       const response = await authAPI().post('/reservations/', {
         room: room.id,
         book_date: new Date().toISOString().split('T')[0],
         checkin: checkInDate,
         checkout: checkOutDate,
-      
-      headers: {
-            // 'Authorization': `Bearer ${token}`,
-            "Content-Type": `Application/json`
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          "Content-Type": `Application/json`
         }
-      }
-    );
+      });
       alert("Đặt phòng thành công!");
       console.log("Reservation response:", response.data);
     } catch (error) {

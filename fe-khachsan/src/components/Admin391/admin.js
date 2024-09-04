@@ -21,7 +21,8 @@ function Admin() {
 					{ label: "QL Phòng", path: "/existing-rooms" },
 					{ label: "QL Loại Phòng", path: "/existing-roomtypes" },
 					{ label: "QL Dịch Vụ", path: "/existing-services" },
-					{ label: "QL Tài khoản", path: "/existing-accounts" }
+					{ label: "QL Tài khoản", path: "/existing-accounts" },
+          { label: "QL Phiếu Đặt Phòng", path: "/existing-reservations" }
 				].map((option) => (
 					<button
 						key={option.label}

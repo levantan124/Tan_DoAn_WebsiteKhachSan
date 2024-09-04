@@ -121,12 +121,7 @@ class Tan_RoomTypeViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         return [permissions.AllowAny()]
 
     def get_queryset(self):
-        # Lấy danh sách RoomType theo tên nếu có query params 'name'
-        queryset = self.queryset
-        q = self.request.query_params.get('name')
-        if q:
-            queryset = queryset.filter(name__icontains=q)
-        return queryset
+        return RoomType.objects.filter(active=True).all()
 
     def partial_update(self, request, pk=None):
         # Cập nhật một RoomType cụ thể
@@ -172,6 +167,7 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
             # Lấy dữ liệu từ request
             room_type_id = request.data.get("room_type")
             name_room = request.data.get("name")
+            image_room = request.data.get("image")
 
             # Kiểm tra dữ liệu đầu vào
             if not room_type_id or not name_room:
@@ -184,7 +180,7 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
             room_type = RoomType.objects.get(id=room_type_id)
 
             # Tạo phòng mới
-            new_room = Room.objects.create(name=name_room, room_type=room_type)
+            new_room = Room.objects.create(name=name_room, room_type=room_type, image=image_room)
 
             # Trả về phản hồi thành công
             return Response(
@@ -298,15 +294,15 @@ class Tan_ServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         return [permissions.AllowAny()]
 
     def get_queryset(self):
-        return self.queryset
+        return Service.objects.filter(active=True)
 
     def partial_update(self, request, pk=None):
         try:
-            room = Room.objects.get(pk=pk)
-        except Room.DoesNotExist:
+            service = Service.objects.get(pk=pk)
+        except Service.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = self.serializer_class(room, data=request.data, partial=True)
+        serializer = self.serializer_class(service, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

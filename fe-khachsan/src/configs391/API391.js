@@ -19,9 +19,9 @@ export const endpoints = {
     'ac': '/accounts/',
     'rt': '/roomtypes/',
     'r': '/rooms/',
-    'rp': (id) => `/room-images/${id}/`
+    'rp': (id) => `/room-images/${id}/`,
 
-
+    
     // 'signup': '/accounts/',
     // 'list_reservations' : '/reservations/',
     // 'deactivate_reservation': (id) => `/reservations/${id}/deactivate/`, // Thêm hàm cho deactivate với tham số id

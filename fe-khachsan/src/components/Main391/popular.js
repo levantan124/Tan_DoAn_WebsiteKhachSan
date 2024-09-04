@@ -47,7 +47,7 @@ const Popular = () => {
     infinite: true,
     speed: 500,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 2000,
     slidesToShow: 3,
     slidesToScroll: 1,
     prevArrow: <CustomPrevArrow />,
@@ -65,6 +65,7 @@ const Popular = () => {
               const imageUrl = room.image 
                 ? `${CLOUDINARY_BASE_URL}${room.image}` 
                 : null;
+              const isAvailable = room.status !== 1; // Giả sử status = 1 là hết phòng
               return (
                 <div key={room.id} css={slideCardStyle}>
                   {imageUrl && (
@@ -82,7 +83,9 @@ const Popular = () => {
                     <p>{roomType.name || 'No details available'}</p>
                     <div css={quantityAndButtonStyle}>
                       <p>Số lượng người: {roomType.quantity || 'N/A'}</p>
-                      <Link to={`/room/${room.id}`} css={bookingButtonStyle}>Đặt phòng</Link>
+                      <Link to={`/room/${room.id}`} css={bookingButtonStyle(isAvailable)} disabled={!isAvailable}>
+                        {isAvailable ? 'Đặt phòng' : 'Hết phòng'}
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -96,6 +99,7 @@ const Popular = () => {
               const imageUrl = room.image 
                 ? `${CLOUDINARY_BASE_URL}${room.image}` 
                 : null;
+              const isAvailable = room.status !== 1; // Giả sử status = 1 là hết phòng
               return (
                 <div key={room.id} css={slideCardStyle}>
                   {imageUrl && (
@@ -113,7 +117,9 @@ const Popular = () => {
                     <p>{roomType.name || 'No details available'}</p>
                     <div css={quantityAndButtonStyle}>
                       <p>Số lượng người: {roomType.quantity || 'N/A'}</p>
-                      <Link to={`/room/${room.id}`} css={bookingButtonStyle}>Đặt phòng</Link>
+                      <Link to={`/room/${room.id}`} css={bookingButtonStyle(isAvailable)} disabled={!isAvailable}>
+                        {isAvailable ? 'Đặt phòng' : 'Hết phòng'}
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -129,7 +135,7 @@ const Popular = () => {
       </div>
     </section>
   );
-};
+}  
 
 const CustomPrevArrow = (props) => (
   <button {...props} css={[arrowStyle, css`left: 10px;`]}>
@@ -163,7 +169,7 @@ const slideCardStyle = css`
   border: 1px solid rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   max-width: 300px;
-  margin: 0 10px; /* Thay đổi khoảng cách giữa các thẻ trong slider */
+  margin: 0 10px;
 
   &:hover {
     transform: scale(1.03);
@@ -204,16 +210,16 @@ const quantityAndButtonStyle = css`
   margin-top: 0.5rem;
 `;
 
-const bookingButtonStyle = css`
+const bookingButtonStyle = (isAvailable) => css`
   display: inline-block;
   padding: 0.4em 0.8em;
   border-radius: 0.3em;
   border: none;
-  background: linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07);
-  color: rgb(120, 50, 5);
+  background: ${isAvailable ? 'linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07)' : '#e74c3c'};
+  color: ${isAvailable ? 'rgb(120, 50, 5)' : '#fff'};
   text-transform: uppercase;
   font-weight: 600;
-  cursor: pointer;
+  cursor: ${isAvailable ? 'pointer' : 'not-allowed'};
   transition: background-size 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
 
   // Initial shadow and elevation
@@ -222,8 +228,14 @@ const bookingButtonStyle = css`
   &:hover {
     background-size: 150% 150%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    color: rgba(120, 50, 5, 0.8);
-    transform: translateY(-2px); 
+    color: ${isAvailable ? 'rgba(120, 50, 5, 0.8)' : '#fff'};
+    transform: ${isAvailable ? 'translateY(-2px)' : 'none'};
+  }
+
+  &:disabled {
+    background: #d3d3d3;
+    color: #a0a0a0;
+    cursor: not-allowed;
   }
 `;
 
@@ -253,7 +265,7 @@ const moreButtonStyle = css`
 const gridStyle = css`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem; /* Thay đổi khoảng cách giữa các thẻ trong grid */
+  gap: 1.5rem;
 `;
 
 const arrowStyle = css`

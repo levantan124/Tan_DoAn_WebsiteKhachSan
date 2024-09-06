@@ -22,16 +22,16 @@ export const endpoints = {
     'rp': (id) => `/room-images/${id}/`,
 
     
-    // 'signup': '/accounts/',
-    // 'list_reservations' : '/reservations/',
-    // 'deactivate_reservation': (id) => `/reservations/${id}/deactivate/`, // Thêm hàm cho deactivate với tham số id
-    // 'update_reservation': (id) => `/reservations/${id}/`, // Update reservation endpoint
-    // 'roomtypes': '/roomtypes/',
-    // 'reservation_service' : '/reservation_services/',
-    // 'services_of_reservation': (id) => `/reservations/${id}/services/`,
-    // 'services' : '/services/',
-    // 'deactive_service': (id) => `/reservation_services/${id}/`, 
-    // 'bills' : '/bills/'
+    'signup': '/accounts/',
+    'list_reservations' : '/reservations/',
+    'deactivate_reservation': (id) => `/reservations/${id}/deactivate/`, // Thêm hàm cho deactivate với tham số id
+    'update_reservation': (id) => `/reservations/${id}/`, // Update reservation endpoint
+    'roomtypes': '/roomtypes/',
+    'reservation_service' : '/reservation_services/',
+    'services_of_reservation': (id) => `/reservations/${id}/services/`,
+    'services' : '/services/',
+    'deactive_service': (id) => `/reservation_services/${id}/`, 
+    'bills' : '/bills/'
 
 };
 

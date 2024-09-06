@@ -1,40 +1,42 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState } from "react";
 import { css } from "@emotion/react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 function Admin() {
-	const [selected, setSelected] = useState("");
-	const navigate = useNavigate();
+  const [selected, setSelected] = useState("");
+  const navigate = useNavigate();
 
-	const handleClick = (path) => {
-		setSelected(path);
-		navigate(path);
-	};
+  const handleClick = (path) => {
+    setSelected(path);
+    navigate(path);
+  };
 
-	return (
-		<section css={containerStyle}>
-			<h2 css={titleStyle}>Welcome to Admin Panel</h2>
-			<hr css={dividerStyle} />
-			<div css={btnGroupStyle}>
-				{[
-					{ label: "QL Phòng", path: "/existing-rooms" },
-					{ label: "QL Loại Phòng", path: "/existing-roomtypes" },
-					{ label: "QL Dịch Vụ", path: "/existing-services" },
-					{ label: "QL Tài khoản", path: "/existing-accounts" },
-          { label: "QL Phiếu Đặt Phòng", path: "/existing-reservations" }
-				].map((option) => (
-					<button
-						key={option.label}
-						css={btnStyle(selected === option.path)}
-						onClick={() => handleClick(option.path)}
-					>
-						{option.label}
-					</button>
-				))}
-			</div>
-		</section>
-	);
+  return (
+    <section css={containerStyle}>
+      <h2 css={titleStyle}>Welcome to Admin Panel</h2>
+      <hr css={buttonDividerStyle} />
+      <div css={btnGroupStyle}>
+        {[
+          { label: "QL Phòng", path: "/admin/existing-rooms" },
+          { label: "QL Loại Phòng", path: "/admin/existing-roomtypes" },
+          { label: "QL Dịch Vụ", path: "/admin/existing-services" },
+          { label: "QL Tài khoản", path: "/admin/existing-accounts" },
+          { label: "QL Phiếu Đặt Phòng", path: "/admin/existing-reservations" }
+        ].map((option) => (
+          <button
+            key={option.label}
+            css={btnStyle(selected === option.path)}
+            onClick={() => handleClick(option.path)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div >
+      <hr css={buttonDividerStyle} />
+      <Outlet /> {/* Nơi sẽ hiển thị các trang con */}
+    </section>
+  );
 }
 
 const containerStyle = css`
@@ -51,13 +53,6 @@ const titleStyle = css`
   font-size: 2rem;
   color: #333;
   margin-bottom: 1.5rem;
-`;
-
-const dividerStyle = css`
-  margin-bottom: 2rem;
-  border: none;
-  height: 1px;
-  background-color: #ddd;
 `;
 
 const btnGroupStyle = css`
@@ -85,6 +80,13 @@ const btnStyle = (isActive) => css`
     background-color: ${isActive ? "#d0d0d0" : "#5aaf73"};
     color: ${isActive ? "#333" : "#fff"};
   }
+`;
+const buttonDividerStyle = css`
+  margin: 2rem auto;
+  border: none;
+  height: 3px;
+  background-color: #ddd;
+  width: 100%; 
 `;
 
 export default Admin;

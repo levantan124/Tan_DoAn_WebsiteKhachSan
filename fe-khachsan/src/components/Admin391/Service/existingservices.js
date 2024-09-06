@@ -223,8 +223,8 @@ const ExistingServices = () => {
 
 // CSS styles
 const sectionContainerStyle = css`
-  padding: 2rem;
-  margin: 7rem auto;
+  padding: 20px;
+  margin: 20px auto;
   max-width: 1200px;
   background-color: #f9f9f9;
   border-radius: 0.5rem;

@@ -617,9 +617,44 @@ class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView
         return Response({'detail': 'Field "active" is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class Tan_BillViewSet(viewsets.ModelViewSet):
+class Tan_BillViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
     queryset = Bill.objects.all()
     serializer_class = Tan_BillSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['list', 'create']:  # Allow 'list' and 'create' for receptionists
+            if self.request.user.is_authenticated and self.request.user.role == Account.Roles.LETAN:
+                return [permissions.IsAuthenticated()]
+            else:
+                raise PermissionDenied("Only receptionists can access this endpoint.")
+
+        return [permissions.AllowAny()]
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = Tan_BillSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        total_amount = data.get('total_amount')  # Change to 'total_amount'
+        reservation_id = data.get('reservation')
+
+        try:
+            reservation = Reservation.objects.get(id=reservation_id)
+        except Reservation.DoesNotExist:
+            return Response({"error": "Reservation not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create the bill instance with the correct field name
+        bill = Bill.objects.create(
+            total_amount=total_amount,
+            reservation=reservation
+        )
+
+        serializer = Tan_BillSerializer(bill)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class Tan_RefundViewSet(viewsets.ModelViewSet):
     queryset = Refund.objects.all()

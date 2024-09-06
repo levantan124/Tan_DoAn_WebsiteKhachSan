@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
 import cookie from "react-cookies";
@@ -11,6 +11,7 @@ const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zr
 
 const RoomDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); // Hook for navigation
   const [room, setRoom] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
   const [roomImages, setRoomImages] = useState(null);
@@ -69,7 +70,7 @@ const RoomDetails = () => {
 
   const imageUrls = roomImages
     ? [roomImages.image1, roomImages.image2, roomImages.image3, roomImages.image4].map(img => `${CLOUDINARY_BASE_URL}${img}`)
-    : [DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL,DEFAULT_IMAGE_URL,DEFAULT_IMAGE_URL]; 
+    : [DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL];
 
   const sliderSettings = {
     dots: true,
@@ -83,8 +84,15 @@ const RoomDetails = () => {
   };
 
   const handleBookRoom = async () => {
+    const token = cookie.load('token');
+
+    if (!token) {
+      alert("Vui lòng đăng nhập để đặt phòng.");
+      navigate('/login'); // Redirect to login page
+      return;
+    }
+
     try {
-      const token = cookie.load('token');
       const response = await authAPI().post('/reservations/', {
         room: room.id,
         book_date: new Date().toISOString().split('T')[0],
@@ -103,6 +111,8 @@ const RoomDetails = () => {
       alert("Đặt phòng thất bại. Vui lòng thử lại.");
     }
   };
+
+  const isRoomAvailable = room.status !== 1;
 
   return (
     <section css={containerStyle}>
@@ -151,7 +161,13 @@ const RoomDetails = () => {
               />
             </label>
           </div>
-          <button onClick={handleBookRoom} css={bookButtonStyle}>Đặt phòng</button>
+          <button 
+            onClick={isRoomAvailable ? handleBookRoom : undefined} 
+            css={bookButtonStyle}
+            disabled={!isRoomAvailable}
+          >
+            {isRoomAvailable ? "Đặt phòng" : "Hết phòng"}
+          </button>
         </div>
       </div>
     </section>

@@ -314,7 +314,7 @@ const ExistingRooms = () => {
 
 const styles = {
     sectionContainer: css`
-        padding: 120px;
+        padding: 10px;
     `,
     header: css`
         font-size: 2rem;

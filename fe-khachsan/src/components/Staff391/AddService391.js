@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { authAPI } from '../../configs391/API391';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const AddService391 = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -13,6 +13,7 @@ const AddService391 = () => {
   const [selectedService, setSelectedService] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReservationDetails = async () => {
@@ -66,7 +67,6 @@ const AddService391 = () => {
 
         // Hiển thị thông báo thành công
         alert('Dịch vụ đã được thêm thành công');
-        // Có thể cần phải làm mới lại dữ liệu hoặc thực hiện hành động khác sau khi thêm dịch vụ
       } else {
         alert('Vui lòng chọn dịch vụ');
       }
@@ -75,12 +75,19 @@ const AddService391 = () => {
     }
   };
 
+  const handleGenerateInvoice = () => {
+    if (reservation && reservation.status_checkin) {
+      // Điều hướng đến trang xuất hóa đơn với id của reservation
+      navigate(`/bill/${id}`);
+    } else {
+      alert('Khách chưa nhận phòng. Vui lòng kiểm tra lại.');
+    }
+  };
+
   const handleRemoveService = async (serviceId) => {
     try {
       await authAPI().patch(`/reservation_services/${serviceId}/`, {
         // Xóa dịch vụ bằng cách gửi PATCH request
-        // Có thể cần điều chỉnh payload tùy theo cách mà API xử lý việc xóa
-        // Nếu API chỉ yêu cầu gửi yêu cầu PATCH mà không cần payload thêm, có thể bỏ qua phần này
       });
 
       // Cập nhật số lượng dịch vụ
@@ -95,7 +102,6 @@ const AddService391 = () => {
 
       // Hiển thị thông báo thành công
       alert('Dịch vụ đã được xóa thành công');
-      // Có thể cần phải làm mới lại dữ liệu hoặc thực hiện hành động khác sau khi xóa dịch vụ
     } catch (error) {
       setError('Error removing service');
     }
@@ -114,11 +120,9 @@ const AddService391 = () => {
     // Tính tổng chi phí phòng
     if (reservation && reservation.rooms) {
       const totalDays = (new Date(reservation.checkout) - new Date(reservation.checkin)) / (1000 * 60 * 60 * 24);
-      console.log('Số ngày:', totalDays); // Log để kiểm tra
       const totalRoomCost = reservation.rooms.reduce((sum, room) => {
         return sum + (room.room_type.price * totalDays);
       }, 0);
-      console.log('Tổng chi phí phòng:', totalRoomCost); 
       total += totalRoomCost;
     }
   
@@ -181,7 +185,12 @@ const AddService391 = () => {
             <button css={buttonStyle} onClick={handleAddService}>Thêm Dịch Vụ</button>
           </div>
           
-          <h3 css={totalAmountStyle}>Tổng số tiền: {calculateTotalAmount().toLocaleString()} VND</h3>
+          <h3 css={totalAmountStyle}>Tổng số tiền dịch vụ: {calculateTotalAmount().toLocaleString()} VND</h3>
+          <div css={actionContainerStyle}>
+            <button css={generateInvoiceButtonStyle} onClick={handleGenerateInvoice}>
+              Trả phòng
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -306,5 +315,27 @@ const errorStyle = css`
   text-align: center;
   color: #d9534f;
 `;
+
+const actionContainerStyle = css`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+`;
+
+const generateInvoiceButtonStyle = css`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #2a9d8f;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #1f8a77;
+  }
+`;
+
+
 
 export default AddService391;

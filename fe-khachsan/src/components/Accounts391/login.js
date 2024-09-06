@@ -56,7 +56,15 @@ const Login = () => {
         cookie.save("token", res.data.access_token);
         let userdata = await authAPI().get(endpoints['current_user']);
         cookie.save('user', userdata.data);
-        nav("/");
+  
+        // Redirect based on role
+        if (userdata.data.role === 2) {
+          nav("/staff");
+        } else if (userdata.data.role === 1) {
+          nav("/admin");
+        } else {
+          nav("/");
+        }
       } else {
         handleLoginError(res.status);
       }
@@ -67,6 +75,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   const register = () => {
     nav("/signup");

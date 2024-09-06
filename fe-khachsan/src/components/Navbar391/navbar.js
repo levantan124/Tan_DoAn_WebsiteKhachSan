@@ -31,8 +31,10 @@ const NavBar = () => {
             <li><Link to="/" onClick={handleLogout} css={linkStyle}>Đăng xuất</Link></li>
             {user.role === 2 && (
               <>
-                <li><Link to="/reservations-list/" css={linkStyle}>QL phiếu đặt phòng</Link></li>
-                <li><Link to="/services-list/" css={linkStyle}>QL dịch vụ</Link></li>
+                <li><Link to="/reservations-list" css={linkStyle}>QL phiếu đặt phòng</Link></li>
+                <li><Link to="/services-list" css={linkStyle}>QL dịch vụ</Link></li>
+                <li><Link to="/checkout-list" css={linkStyle}>Trả phòng</Link></li>
+                <li><Link to="/manage-bill" css={linkStyle}>QL Hóa đơn</Link></li>
               </>
             )}
             {(user.is_superuser || user.role === 1) && (

@@ -20,6 +20,7 @@ export const endpoints = {
     'rt': '/roomtypes/',
     'r': '/rooms/',
     'rp': (id) => `/room-images/${id}/`,
+    'login-google': '/accounts/google-login/',
 
     
     'signup': '/accounts/',
@@ -64,6 +65,21 @@ export const  api = axios.create({
 //         throw error; 
 //     }
 // };
+
+
+/* This function register a new user */
+export async function registerUser(registration) {
+	try {
+		const response = await api.post("/accounts/", registration)
+		return response.data
+	} catch (error) {
+		if (error.reeponse && error.response.data) {
+			throw new Error(error.response.data)
+		} else {
+			throw new Error(`User registration error : ${error.message}`)
+		}
+	}
+}
 
 
 export default api;

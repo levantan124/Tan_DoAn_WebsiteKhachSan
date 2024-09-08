@@ -4,8 +4,9 @@ import { css } from '@emotion/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import cookie from "react-cookies";
-import APIs, { endpoints, authAPI } from "../../configs391/API391";
+import cookie from 'react-cookies';
+import Signup from './singup'; // Fixed the import from 'singup' to 'Signup'
+import APIs, { endpoints, authAPI } from '../../configs391/API391';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,17 +21,13 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const switchForm = () => {
-    setIsLogin(!isLogin);
-  };
-
   const handleLoginError = (errorStatus) => {
     switch (errorStatus) {
       case 400:
-        setError("Sai tên đăng nhập hoặc mật khẩu");
+        setError('Sai tên đăng nhập hoặc mật khẩu');
         break;
       default:
-        setError("Đăng nhập không thành công");
+        setError('Đăng nhập không thành công');
         break;
     }
   };
@@ -38,47 +35,46 @@ const Login = () => {
   const login = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
-      let res = await APIs.post(endpoints['login'], {
+      let res = await APIs.post(endpoints['login'], new URLSearchParams({
         'username': username,
         'password': password,
-        'client_id': "5j5685BlfLjZ1SZ50c59oM6C57M2lQnhMXmK9b7e",
-        'client_secret': "kQW8noCmtlgt1r0S9NsNAgpMmERDJDlbVbplYBvKWepg6kQOE4GWH3zaE9go6tGndYFVafZy7ApxisTieYurUGQuGxwfduM50YK8Q1l9fiUj3bPRcVcdF6cUOBhXhhp9",
-        'grant_type': "password",
-      }, {
+        'client_id': '5j5685BlfLjZ1SZ50c59oM6C57M2lQnhMXmK9b7e',
+        'client_secret': 'kQW8noCmtlgt1r0S9NsNAgpMmERDJDlbVbplYBvKWepg6kQOE4GWH3zaE9go6tGndYFVafZy7ApxisTieYurUGQuGxwfduM50YK8Q1l9fiUj3bPRcVcdF6cUOBhXhhp9',
+        'grant_type': 'password',
+      }), {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         }
       });
-      
+
       if (res.status === 200) {
-        cookie.save("token", res.data.access_token);
+        cookie.save('token', res.data.access_token);
         let userdata = await authAPI().get(endpoints['current_user']);
         cookie.save('user', userdata.data);
-  
+
         // Redirect based on role
         if (userdata.data.role === 2) {
-          nav("/staff");
+          nav('/staff');
         } else if (userdata.data.role === 1) {
-          nav("/admin");
+          nav('/admin');
         } else {
-          nav("/");
+          nav('/');
         }
       } else {
         handleLoginError(res.status);
       }
     } catch (ex) {
       console.error('Exception:', ex);
-      setError("Sai tên hoặc mật khẩu, vui lòng thử lại.");
+      setError('Sai tên hoặc mật khẩu, vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
   };
-  
 
   const register = () => {
-    nav("/signup");
+    nav('/signup');
   };
 
   return (
@@ -86,8 +82,8 @@ const Login = () => {
       <div css={boxStyles}>
         {isLogin ? (
           <form css={formStyles} onSubmit={login}>
-            <div css={topHeaderStyles}>
-              <h2>Đăng nhập</h2>
+            <div css={headerStyles}>
+              <h2>ĐĂNG NHẬP</h2>
             </div>
             {error && <div css={errorStyles}>{error}</div>}
             <div css={inputGroupStyles}>
@@ -98,9 +94,9 @@ const Login = () => {
                   css={inputBoxStyles}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Tên đăng nhập"
                   required
                 />
-                <label htmlFor="logUsername">Tên đăng nhập</label>
               </div>
               <div css={inputFieldStyles}>
                 <input
@@ -109,9 +105,9 @@ const Login = () => {
                   css={inputBoxStyles}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mật khẩu"
                   required
                 />
-                <label htmlFor="logPassword">Mật khẩu</label>
                 <div css={eyeAreaStyles} onClick={togglePasswordVisibility}>
                   <FontAwesomeIcon
                     icon={faEye}
@@ -131,79 +127,23 @@ const Login = () => {
                 <input type="submit" value="Đăng nhập" css={inputSubmitStyles} disabled={loading} />
               </div>
               <div css={forgotStyles}>
-                <a href="#" onClick={() => { /* Xử lý quên mật khẩu */ }}>Quên mật khẩu?</a>
+                <a href="#">Quên mật khẩu?</a>
               </div>
             </div>
           </form>
         ) : (
-          <form css={formStyles}>
-            <div css={topHeaderStyles}>
-              <h2>Đăng ký</h2>
-            </div>
-            <div css={inputGroupStyles}>
-              <div css={inputFieldStyles}>
-                <input
-                  type="text"
-                  id="regUser"
-                  css={inputBoxStyles}
-                  required
-                />
-                <label htmlFor="regUser">Tên đăng nhập</label>
-              </div>
-              <div css={inputFieldStyles}>
-                <input
-                  type="email"
-                  id="regEmail"
-                  css={inputBoxStyles}
-                  required
-                />
-                <label htmlFor="regEmail">Email</label>
-              </div>
-              <div css={inputFieldStyles}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="regPassword"
-                  css={inputBoxStyles}
-                  required
-                />
-                <label htmlFor="regPassword">Mật khẩu</label>
-                <div css={eyeAreaStyles} onClick={togglePasswordVisibility}>
-                  <FontAwesomeIcon
-                    icon={faEye}
-                    css={showPassword ? hiddenIconStyles : visibleIconStyles}
-                  />
-                  <FontAwesomeIcon
-                    icon={faEyeSlash}
-                    css={showPassword ? visibleIconStyles : hiddenIconStyles}
-                  />
-                </div>
-              </div>
-              <div css={rememberStyles}>
-                <input type="checkbox" id="formCheck-2" css={checkStyles} />
-                <label htmlFor="formCheck-2">I agree to the terms & conditions</label>
-              </div>
-              <div css={inputFieldStyles}>
-                <input type="submit" value="Đăng ký" css={inputSubmitStyles} />
-              </div>
-            </div>
-          </form>
+          <Signup />
         )}
         <div css={switchStyles}>
-          <a
-            href="#"
-            css={[switchLinkStyles, isLogin && activeSwitchLinkStyles]}
-            onClick={() => setIsLogin(true)}
-          >
-            Đăng nhập
-          </a>
-          <a
-            href="#"
-            css={[switchLinkStyles, !isLogin && activeSwitchLinkStyles]}
-            onClick={() => setIsLogin(false)}
-          >
-            Đăng ký
-          </a>
-          <div css={btnActiveStyles} style={{ left: isLogin ? '0' : '50%' }}></div>
+          {isLogin ? (
+            <a href="" css={switchLinkStyles} onClick={register}>
+              Đăng ký tài khoản mới
+            </a>
+          ) : (
+            <a href="#" css={loginLinkStyles} onClick={() => setIsLogin(true)}>
+              Đăng nhập
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -219,111 +159,119 @@ const containerStyles = css`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding-top: 5rem;
+  padding-top: 1rem;
 `;
 
 const boxStyles = css`
   display: flex;
   flex-direction: column;
   position: relative;
-  padding: 60px 20px 30px 20px;
+  padding: 1px 20px 30px 30px;
   background: rgba(255, 220, 220, 0.5);
-  height: 580px;
-  width: 580px;
+  height: 500px; 
+  width: 500px;
   border-radius: 30px;
   -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
   border: 3px solid rgba(255, 255, 255, 0.5);
   overflow: hidden;
+  align-items: center; /* Center contents horizontally */
+  justify-content: center; /* Center contents vertically */
 `;
 
 const formStyles = css`
-  position: absolute;
-  width: 85%;
-  left: 27px;
-  transition: 0.5s ease-in-out;
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center contents horizontally */
 `;
 
-const topHeaderStyles = css`
+const headerStyles = css`
   text-align: center;
-  margin: 30px 0;
+  margin-bottom: 20px;
 
   h2 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  small {
-    display: block;
-    color: #555;
+    margin-bottom: 10px;
   }
 `;
 
 const inputGroupStyles = css`
   width: 100%;
+  display: flex;
+  flex-direction: column; /* Stack inputs vertically */
+  align-items: center; /* Center contents horizontally */
 `;
 
 const inputFieldStyles = css`
-  margin: 12px 0;
-  position: relative;
+  position: relative; /* Add this to position eyeAreaStyles relative to this container */
+  margin: 10px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 `;
 
 const inputBoxStyles = css`
   width: 100%;
+  max-width: 500px; 
   height: 40px;
   font-size: 15px;
-  color: #040404;
-  border: none;
-  outline: none;
-  border-radius: 10px;
-  padding: 7px 20px 7px 20px;
-  background: rgba(224, 223, 223, 0.7);
-  backdrop-filter: blur(10px);
+  color: #7f8c8d;
+  border: 1px solid #dcdbe1;
+  border-radius: 20px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  padding-right: 40px; /* Add extra padding to avoid text overlap with the icon */
 `;
 
 const eyeAreaStyles = css`
   position: absolute;
   top: 50%;
-  right: 20px;
+  right: 10px; /* Adjust right position to fit within the padding */
   transform: translateY(-50%);
   cursor: pointer;
+  z-index: 1; /* Ensure it's above the input field */
 `;
 
+
 const visibleIconStyles = css`
-  color: #444;
+  color: #555;
 `;
 
 const hiddenIconStyles = css`
-  color: #444;
+  color: #555;
   opacity: 0;
 `;
 
 const rememberStyles = css`
   display: flex;
+  align-items: center;
   font-size: 14px;
-  margin: 12px 0 30px 0;
+  margin: 15px 0;
 `;
 
 const checkStyles = css`
-  margin-right: 5px;
+  margin-right: 8px;
 `;
 
 const inputSubmitStyles = css`
-  width: 100%;
-  height: 50px;
-  font-size: 15px;
-  font-weight: 500;
   border: none;
-  border-radius: 10px;
-  background: #011F51;
+  background: #ff6347;
   color: #fff;
+  height: 40px;
+  border-radius: 20px;
   cursor: pointer;
-  box-shadow: 0px 5px 20px rgba(1, 31, 81, 0.5);
-  transition: 0.5s;
-
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0; /* Adjust margin for better spacing */
+  width: 100%; /* Ensure button is full width */
+  max-width: 100%; /* Limit width of button */
+  
   &:hover {
-    box-shadow: none;
+    background: #e5533d;
   }
 `;
 
@@ -331,11 +279,11 @@ const forgotStyles = css`
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  margin-top: 40px;
+  margin-top: 20px;
 
   a {
     text-decoration: none;
-    color: #040404;
+    color: #ff6347;
   }
 
   a:hover {
@@ -346,50 +294,62 @@ const forgotStyles = css`
 const switchStyles = css`
   display: flex;
   position: absolute;
-  bottom: 50px;
-  left: 25px;
-  width: 85%;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
 `;
 
 const switchLinkStyles = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 15px;
-  font-weight: 500;
-  color: #fff;
+  color: #ff6347;
+  font-weight: bold;
   text-decoration: none;
-  width: 50%;
-  border-radius: 10px;
-  z-index: 10;
+  margin-bottom: 50px;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
-const activeSwitchLinkStyles = css`
-  background: #011F51;
-`;
-
-const btnActiveStyles = css`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 50%;
-  height: 50px;
-  background: #011F51;
-  border-radius: 10px;
-  box-shadow: 2px 0px 12px rgba(0, 0, 0, 0.2);
-  transition: 0.5s ease-in-out;
+const loginLinkStyles = css`
+  color: #004080;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
 `;
 
 const errorStyles = css`
   color: red;
+  font-size: 14px;
   text-align: center;
-  margin: 10px 0;
+  margin-bottom: 15px;
 `;
 
+const googleButtonStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4285f4;
+  color: #fff;
+  height: 40px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #357ae8;
+  }
+`;
+
+const googleIconStyles = css`
+  margin-right: 10px;
+`;
 export default Login;

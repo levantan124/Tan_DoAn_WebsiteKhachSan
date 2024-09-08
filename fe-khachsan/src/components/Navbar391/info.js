@@ -18,7 +18,7 @@ const Info = () => {
     });
 
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(user?.avatar ? `https://res.cloudinary.com/your-cloud-name/${user.avatar}` : 'placeholder-image-url');
+    const [avatarPreview, setAvatarPreview] = useState(user?.avatar ? `https://res.cloudinary.com/vantan/${user.avatar}` : 'placeholder-image-url');
     const [notification, setNotification] = useState({ type: '', message: '' });
 
     useEffect(() => {
@@ -190,7 +190,7 @@ const styles = {
         margin: 20px auto;
         padding: 20px;
         padding-top: 100px;
-        background: #ffffff;
+        background: rgba(255, 220, 220, 0.5);
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         text-align: center;
@@ -267,37 +267,38 @@ const styles = {
     `,
     input: css`
         width: 100%;
-        padding: 10px;
-        font-size: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        &:focus {
-            outline: none;
-            border-color: #007BFF;
-        }
+        height: 40px;
+        font-size: 15px;
+        color: #7f8c8d;
+        border: 1px solid #dcdbe1;
+        border-radius: 20px;
+        padding: 0 20px;
+        box-sizing: border-box;
     `,
     select: css`
-        width: 100%;
-        padding: 10px;
-        font-size: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        &:focus {
-            outline: none;
-            border-color: #007BFF;
-        }
+         width: 100%;
+        height: 40px;
+        font-size: 15px;
+        color: #7f8c8d;
+        border: 1px solid #dcdbe1;
+        border-radius: 20px;
+        padding: 0 20px;
+        box-sizing: border-box;
     `,
     button: css`
         padding: 10px 20px;
-        font-size: 1rem;
         border: none;
-        border-radius: 5px;
-        background-color: #007BFF;
+        background: #ff6347;
         color: #fff;
+        height: 40px;
+        border-radius: 20px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-size: 16px;
+        font-weight: bold;
+        width:100%;
+
         &:hover {
-            background-color: #0056b3;
+            background: #e5533d;
         }
     `,
     successAlert: css`

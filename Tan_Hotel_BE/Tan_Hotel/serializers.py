@@ -10,34 +10,35 @@ from .models import (
 class Tan_AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'username', 'password', 'name', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex', 'role',
-                  'is_active']
+        fields = ['id', 'username', 'password', 'name', 'avatar', 'DOB', 'address', 'phone', 'email', 'sex', 'role', 'is_active']
         extra_kwargs = {'password': {'write_only': True}}
 
-        def create(self, validated_data):
-            user = Account(
-                username=validated_data['username'],
-                name=validated_data['name'],
-                avatar=validated_data.get('avatar'),
-                DOB=validated_data.get('DOB'),
-                Address=validated_data.get('address'),
-                phone=validated_data.get('phone'),
-                email=validated_data.get('email'),
-                sex=validated_data.get('sex'),
-                role=validated_data.get('role'),
-            )
-            user.set_password(validated_data['password'])
-            user.save()
-            return user
+    def create(self, validated_data):
+        # Tạo đối tượng tài khoản mới
+        user = Account(
+            username=validated_data['username'],
+            name=validated_data['name'],
+            avatar=validated_data.get('avatar'),
+            DOB=validated_data.get('DOB'),
+            address=validated_data.get('address'),
+            phone=validated_data.get('phone'),
+            email=validated_data.get('email'),
+            sex=validated_data.get('sex'),
+            role=validated_data.get('role'),
+        )
+        # Băm mật khẩu
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
-        def to_representation(self, instance):
-            representation = super().to_representation(instance)
-            # Kiểm tra xem avatar có phải là None không trước khi cố gắng truy cập thuộc tính url
-            if instance.avatar:
-                representation['avatar'] = instance.avatar.url
-            else:
-                representation['avatar'] = None
-            return representation
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Kiểm tra xem avatar có phải là None không trước khi cố gắng truy cập thuộc tính url
+        if instance.avatar:
+            representation['avatar'] = instance.avatar.url
+        else:
+            representation['avatar'] = None
+        return representation
 
 
 # Serializer cho RoomType

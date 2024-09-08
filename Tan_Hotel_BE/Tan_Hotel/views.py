@@ -1,8 +1,11 @@
 # views.py
 from django.contrib.auth.models import AnonymousUser
+from oauth2_provider.settings import oauth2_settings
 from rest_framework import viewsets, generics, parsers, permissions, exceptions, status, serializers
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import PermissionDenied
+from google.oauth2 import id_token
+from google.auth.transport import requests as gg_requests
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
@@ -14,13 +17,12 @@ from .serializers import (
 from rest_framework.response import Response
 
 
-from . import perm
+from . import perm, utils
 
 from .models import (
     Account, RoomType, Room, Service, Reservation,
     ReservationService, Bill, Refund, Payment, Feedback, Promotion, RoomImage
 )
-
 
 
 class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListAPIView, generics.RetrieveAPIView):
@@ -95,16 +97,48 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
 
         return Response(data={'is_valid': "False"}, status=status.HTTP_200_OK)
 
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        # Dam bao role la so
-        if 'role' in data:
-            try:
-                # Role la so nguyen
-                data['role'] = int(data['role'])
-            except ValueError:
-                return Response({"error": "Role must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
-        return super().create(request, *args, **kwargs)
+    @action(methods=['post'], url_path='google-login', detail=False)
+    def google_login(request):
+        id_token_from_client = request.data.get('id_token')
+        if not id_token_from_client:
+            return Response({'error': 'Mã xác thực không được cung cấp'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            idinfo = id_token.verify_oauth2_token(id_token_from_client, gg_requests.Request())
+
+            user_email = idinfo.get('email')
+            user_name = idinfo.get('name')
+            user_picture = idinfo.get('avatar')
+            if not user_email:
+                return Response({'error': 'Không tìm thấy email trong mã xác thực'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user, created = Account.objects.get_or_create(
+                username=user_email,
+                defaults={'first_name': user_name, 'email': user_email,
+                          'avatar': utils.upload_image_from_url(user_picture)})
+
+            access_token, refresh_token = utils.create_user_token(user=user)
+
+            return Response({
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'name': user.first_name,
+                },
+                'created': created,
+                'token': {
+                    'access_token': access_token.token,
+                    'expires_in': 36000,
+                    'refresh_token': refresh_token.token,
+                    'token_type': 'Bearer',
+                    'scope': access_token.scope,
+                }
+            })
+        except ValueError as e:
+            print(e)
+            return Response({'error': 'Xác thực không thành công', 'details': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 from rest_framework import viewsets, generics, permissions, status
@@ -319,6 +353,13 @@ class Tan_ServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         return Response({"detail": "Service has been cancelled successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from django.shortcuts import get_object_or_404
+from .models import Reservation
+from .serializers import Tan_ReservationSerializer
+
 class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
     queryset = Reservation.objects.filter(active=True)
     serializer_class = Tan_ReservationSerializer
@@ -342,6 +383,8 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
                 return [permissions.IsAuthenticated()]
             else:
                 raise PermissionDenied("Only receptionists can cancel reservations.")
+        elif self.action == 'get_reservation_history':
+            return [permissions.IsAuthenticated(), permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
     def get_queryset(self):
@@ -388,9 +431,8 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
 
     def create(self, request, *args, **kwargs):
         # Tạo mới reservation
-        guest= request.user
+        guest = request.user
         room_id = request.data.get('room')
-
 
         try:
             room = Room.objects.get(id=room_id)
@@ -534,6 +576,14 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
         else:
             return Response({"detail": "Invalid status_checkin value."}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['get'], url_path='reservation-history', detail=False)
+    def get_reservation_history(self, request):
+        # Lấy lịch sử đặt phòng của khách hàng
+        reservations = Reservation.objects.filter(guest=request.user).order_by('-book_date')
+        serializer = Tan_ReservationSerializer(reservations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView,generics.UpdateAPIView):
     queryset = ReservationService.objects.all()
@@ -664,9 +714,36 @@ class Tan_PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = Tan_PaymentSerializer
 
-class Tan_FeedbackViewSet(viewsets.ModelViewSet):
+class Tan_FeedbackViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
     queryset = Feedback.objects.all()
     serializer_class = Tan_FeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'list':
+            # Cho phép tất cả người dùng đã xác thực xem danh sách feedback
+            return [permissions.AllowAny()]
+        elif self.action == 'create':
+            # Cho phép tất cả người dùng đã xác thực tạo feedback mới
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    def list(self, request, *args, **kwargs):
+        # Lấy danh sách tất cả feedback
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        # Tạo feedback mới
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        # Lưu feedback mới
+        serializer.save()
 
 class Tan_PromotionViewSet(viewsets.ModelViewSet):
     queryset = Promotion.objects.all()

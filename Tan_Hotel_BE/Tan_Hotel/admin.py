@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import *
+from oauth2_provider.models import Application
+
 
 
 # Inline admin cho ReservationService, hien thi trong trang quan tri cua Reservation

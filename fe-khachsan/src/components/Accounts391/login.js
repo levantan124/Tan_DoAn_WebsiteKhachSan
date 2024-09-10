@@ -6,6 +6,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import cookie from 'react-cookies';
 import Signup from './singup'; // Fixed the import from 'singup' to 'Signup'
+import GoogleButton from './google';
 import APIs, { endpoints, authAPI } from '../../configs391/API391';
 
 const Login = () => {
@@ -126,6 +127,7 @@ const Login = () => {
               <div css={inputFieldStyles}>
                 <input type="submit" value="Đăng nhập" css={inputSubmitStyles} disabled={loading} />
               </div>
+              <GoogleButton />
               <div css={forgotStyles}>
                 <a href="#">Quên mật khẩu?</a>
               </div>

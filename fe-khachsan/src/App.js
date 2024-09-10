@@ -13,6 +13,7 @@ import Signup391 from "./components/Accounts391/singup";
 import Info391 from "./components/Navbar391/info";
 import RoomDetails391 from './components/Main391/roomdetails';
 import BookingHistory391 from "./components/Main391/bookinghistory"
+import Cart391 from "./components/Main391/cart";
 
 // STAFF
 import ServiceList391 from "./components/Staff391/ServiceList391"
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/info" element={<Info391 />} />
             <Route path="/booking-history" element={<BookingHistory391 />} />
             <Route path="/room/:id" element={<RoomDetails391 />} />
+            <Route path="/cart" element={<Cart391 />} />
 
             {/* STAFF */}
             <Route path="/services-list" element={<ServiceList391 />} />
@@ -74,7 +76,7 @@ const Layout = ({ children }) => {
   return (
     <>
       <Navbar />
-      {!isLoginOrSignupPage && <Header391 />}
+      {/* {!isLoginOrSignupPage && <Header391 />} */}
 
       <main>{children}</main>
 

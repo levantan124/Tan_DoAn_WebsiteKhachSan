@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { endpoints, authAPI } from '../../configs391/API391';
+import { MdOutlineLocalGroceryStore } from "react-icons/md";
 
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 
@@ -11,6 +12,7 @@ const Popular = () => {
   const [rooms, setRooms] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRoomTypes = async () => {
@@ -41,6 +43,28 @@ const Popular = () => {
   }, {});
 
   const displayedRooms = showAll ? rooms : rooms.slice(0, 6);
+
+  const handleSaveRoom = (room) => {
+    // Lấy giỏ hàng hiện tại từ localStorage hoặc khởi tạo giỏ hàng rỗng nếu chưa có
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+  // Kiểm tra xem phòng đã có trong giỏ hàng chưa
+  const roomExists = cart.find(item => item.id === room.id);
+
+  if (!roomExists) {
+    // Thêm phòng mới vào giỏ hàng
+    cart.push(room);
+
+    // Lưu giỏ hàng đã cập nhật vào localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    // Thông báo cho người dùng hoặc cập nhật giao diện
+    alert('Phòng đã được thêm vào giỏ hàng!');
+  } else {
+    // Nếu phòng đã có trong giỏ hàng, thông báo cho người dùng
+    alert('Phòng đã có trong giỏ hàng.');
+  }
+  };
 
   const sliderSettings = {
     dots: true,
@@ -87,6 +111,9 @@ const Popular = () => {
                         {isAvailable ? 'Đặt phòng' : 'Hết phòng'}
                       </Link>
                     </div>
+                    <div css={iconStyle} onClick={() => handleSaveRoom(room)}>
+                      <MdOutlineLocalGroceryStore />
+                    </div>
                   </div>
                 </div>
               );
@@ -109,6 +136,9 @@ const Popular = () => {
                       css={imageStyle}
                     />
                   )}
+                  <div css={iconStyle} onClick={() => handleSaveRoom(room)}>
+                    <MdOutlineLocalGroceryStore />
+                  </div>
                   <div css={contentStyle}>
                     <div css={headerStyle}>
                       <h4>{room.name}</h4>
@@ -135,7 +165,7 @@ const Popular = () => {
       </div>
     </section>
   );
-}  
+}
 
 const CustomPrevArrow = (props) => (
   <button {...props} css={[arrowStyle, css`left: 10px;`]}>
@@ -170,6 +200,7 @@ const slideCardStyle = css`
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   max-width: 300px;
   margin: 0 10px;
+  position: relative;
 
   &:hover {
     transform: scale(1.03);
@@ -213,14 +244,15 @@ const quantityAndButtonStyle = css`
 const bookingButtonStyle = (isAvailable) => css`
   display: inline-block;
   padding: 0.4em 0.8em;
-  border-radius: 0.3em;
+  border-radius: 20px;
   border: none;
-  background: ${isAvailable ? 'linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07)' : '#e74c3c'};
+  background: ${isAvailable ? 'linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07)' : '#ff6347'};
   color: ${isAvailable ? 'rgb(120, 50, 5)' : '#fff'};
   text-transform: uppercase;
   font-weight: 600;
   cursor: ${isAvailable ? 'pointer' : 'not-allowed'};
   transition: background-size 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  text-decoration: none;
 
   // Initial shadow and elevation
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -247,7 +279,7 @@ const buttonContainerStyle = css`
 
 const moreButtonStyle = css`
   padding: 0.5em 1em;
-  border-radius: 0.3em;
+  border-radius: 20px;
   border: 2px solid #b47e11;
   background: transparent;
   color: #b47e11;
@@ -279,6 +311,16 @@ const arrowStyle = css`
   &:hover {
     background: #0056b3;
   }
+`;
+
+const iconStyle = css`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: black;
+  border-radius: 50%;
+  padding: 10px;
 `;
 
 export default Popular;

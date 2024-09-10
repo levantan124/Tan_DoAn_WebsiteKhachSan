@@ -33,13 +33,21 @@ export const endpoints = {
     'services' : '/services/',
     'deactive_service': (id) => `/reservation_services/${id}/`, 
     'bills' : '/bills/'
-
 };
 
 
 // Hàm tạo instance axios với Authorization header
 export const authAPI = () => {
     const token = cookie.load('token');
+    return axios.create({
+        baseURL: BASE_URL,
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            // "Content-Type": `Application/json`
+        }
+    });
+};
+export const authAPI2 = (token) => {
     return axios.create({
         baseURL: BASE_URL,
         headers: {

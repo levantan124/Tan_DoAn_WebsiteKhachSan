@@ -19,7 +19,7 @@ def upload_image_from_url(image_url):
 
 
 def create_user_token(user):
-    application = get_object_or_404(Application, name="tanhotel91")
+    application = get_object_or_404(Application, name="Tan_Hotel_BE")
     expires = timezone.now() + timedelta(seconds=36000)
     access_token = AccessToken.objects.create(
         user=user,

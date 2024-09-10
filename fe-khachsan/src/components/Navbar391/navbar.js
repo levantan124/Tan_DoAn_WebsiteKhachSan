@@ -4,7 +4,8 @@ import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { MyUserContext } from "../../configs391/Context391";
-import { FaArrowUp } from 'react-icons/fa';
+import { FaArrowUp } from 'react-icons/fa'; 
+import { MdOutlineLocalGroceryStore } from "react-icons/md";
 
 const NavBar = () => {
   const user = useContext(MyUserContext);
@@ -30,11 +31,11 @@ const NavBar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Xóa token và user từ cookie
+    // Remove token and user from cookies
     cookie.remove("token");
     cookie.remove("user");
     
-    // Điều hướng về trang chủ
+    // Redirect to home page
     navigate("/", { state: { message: "You have been logged out!" } });
   };
 
@@ -51,23 +52,30 @@ const NavBar = () => {
           <li><Link to="/" css={linkStyle}>Trang chủ</Link></li>
           {user ? (
             <>
-              <li><Link to="/info" css={linkStyle}>{user.name}</Link></li>
+             
               <li><Link to="/booking-history" css={linkStyle}>Lịch sử đặt phòng</Link></li>
-              {user.role === 2 && (
-                <li css={dropdownContainerStyle}>
-                  <span css={linkStyle}>QL Lễ Tân</span>
-                  <ul css={dropdownContentStyle}>
-                    <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
-                    <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
-                    <li><Link to="/checkout-list" css={dropdownLinkStyle}>Trả phòng</Link></li>
-                    <li><Link to="/manage-bill" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
-                  </ul>
-                </li>
-              )}
-              {(user.is_superuser || user.role === 1) && (
-                <li><Link to="/existing-rooms" css={linkStyle}>QL Phòng</Link></li>
-              )}
-              <li><Link to="/" onClick={handleLogout} css={linkStyle}>Đăng xuất</Link></li>
+              <li css={dropdownContainerStyle}>
+                <li><Link to="/info" css={linkStyle}>{user.name}</Link></li>
+                <ul css={dropdownContentStyle}>
+                  {user.role === 2 && (
+                    <>
+                      <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
+                      <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
+                      <li><Link to="/checkout-list" css={dropdownLinkStyle}>Trả phòng</Link></li>
+                      <li><Link to="/bill-list" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
+                    </>
+                  )}
+                  {(user.is_superuser || user.role === 1) && (
+                    <li><Link to="/existing-rooms" css={dropdownLinkStyle}>QL Phòng</Link></li>
+                  )}
+                  <li><Link to="/" onClick={handleLogout} css={dropdownLinkStyle}>Đăng xuất</Link></li>
+                </ul>
+              </li>
+              <li css={cartIconStyle}>
+                <Link to="/cart" css={linkStyle}>
+                  <MdOutlineLocalGroceryStore />
+                </Link>
+              </li>
             </>
           ) : (
             <li><Link to="/login" css={linkStyle}>Đăng nhập</Link></li>
@@ -92,24 +100,26 @@ const navStyle = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
+  background-color: #ffffff;
   width: 90%;
-  width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
-  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
   transition: top 0.3s ease, width 0.3s ease;
 `;
 
 const scrolledNavStyle = css`
   top: 0;
-  width: 1300px;
+  background-color: #f8f9fa;
+  width: 100%;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
 const logoStyle = css`
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-dark);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
 `;
 
 const navLinksStyle = css`
@@ -121,12 +131,12 @@ const navLinksStyle = css`
 
 const linkStyle = css`
   font-weight: 600;
-  color: var(--text-light);
+  color: black;
   transition: 0.3s;
   text-decoration: none;
 
   &:hover {
-    color: var(--primary-color);
+    color: #ff6347;
   }
 `;
 
@@ -142,9 +152,9 @@ const dropdownContainerStyle = css`
 const dropdownContentStyle = css`
   display: none;
   position: absolute;
-  background-color: white;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff;
+  min-width: 200px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1;
   padding: 0.5rem;
   border-radius: 0.5rem;
@@ -152,14 +162,27 @@ const dropdownContentStyle = css`
 `;
 
 const dropdownLinkStyle = css`
-  color: var(--text-dark);
-  padding: 0.5rem;
+  color: #333;
+  padding: 0.5rem 1rem;
   display: block;
   text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 
   &:hover {
-    background-color: var(--primary-color);
+    border-radius: 10px;
+    background-color: #ff6347;
     color: white;
+  }
+`;
+
+const cartIconStyle = css`
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #ff6347;
   }
 `;
 

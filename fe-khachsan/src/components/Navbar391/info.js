@@ -18,9 +18,9 @@ const Info = () => {
     });
 
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(user?.avatar ? `https://res.cloudinary.com/vantan/${user.avatar}` : 'placeholder-image-url');
+    const [avatarPreview, setAvatarPreview] = useState(`${user.avatar}`);
     const [notification, setNotification] = useState({ type: '', message: '' });
-
+    // https://res.cloudinary.com/vantan/${user.avatar}
     useEffect(() => {
         setEditableUser({
             name: user?.name || '',
@@ -92,8 +92,8 @@ const Info = () => {
             <div css={styles.avatarSection}>
                 <div css={styles.avatarContainer}>
                     <img
-                        src={avatarPreview}
-                        alt={`${user.name}'s avatar`}
+                        src={user?.avatar ? `${user.avatar}` : 'https://res.cloudinary.com/vantan/image/upload/v1725874989/avt_avej6j.jpg'}
+                        alt={`${user.name}`}
                         css={styles.avatar}
                     />
                     <div css={styles.cameraOverlay}>

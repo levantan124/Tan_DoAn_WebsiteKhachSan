@@ -1,4 +1,6 @@
 # views.py
+import time
+from datetime import datetime
 from django.contrib.auth.models import AnonymousUser
 from oauth2_provider.settings import oauth2_settings
 from rest_framework import viewsets, generics, parsers, permissions, exceptions, status, serializers
@@ -8,6 +10,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as gg_requests
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
 
 from .serializers import (
     Tan_AccountSerializer, Tan_RoomTypeSerializer, Tan_RoomSerializer, Tan_RoomImageSerializer, Tan_ServiceSerializer,
@@ -32,7 +38,7 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
     permission_classes = [permissions.AllowAny()]  # role nào vô cùng đc
 
     def get_permissions(self):
-        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid']:
+        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login']:
             # permission_classes = [IsAuthenticated]
             return [permissions.AllowAny()]
         elif self.action in 'create':
@@ -98,7 +104,7 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
         return Response(data={'is_valid': "False"}, status=status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='google-login', detail=False)
-    def google_login(request):
+    def google_login(self, request):
         id_token_from_client = request.data.get('id_token')
         if not id_token_from_client:
             return Response({'error': 'Mã xác thực không được cung cấp'}, status=status.HTTP_400_BAD_REQUEST)
@@ -108,13 +114,16 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
 
             user_email = idinfo.get('email')
             user_name = idinfo.get('name')
-            user_picture = idinfo.get('avatar')
+            user_picture = idinfo.get('picture')
+            print("Token issue time:", idinfo.get('iat'))
+            print("Current server time:", time.time())
+
             if not user_email:
                 return Response({'error': 'Không tìm thấy email trong mã xác thực'}, status=status.HTTP_400_BAD_REQUEST)
 
             user, created = Account.objects.get_or_create(
                 username=user_email,
-                defaults={'first_name': user_name, 'email': user_email,
+                defaults={'name': user_name, 'email': user_email,
                           'avatar': utils.upload_image_from_url(user_picture)})
 
             access_token, refresh_token = utils.create_user_token(user=user)
@@ -124,7 +133,7 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
                     'id': user.id,
                     'username': user.username,
                     'email': user.email,
-                    'name': user.first_name,
+                    'name': user.name,
                 },
                 'created': created,
                 'token': {
@@ -193,7 +202,7 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     serializer_class = Tan_RoomSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'create', 'update', 'partial_update', 'destroy', 'delete_room', 'retrieve']:
+        if self.action in ['list', 'create', 'update', 'partial_update', 'destroy', 'delete_room', 'retrieve', 'reservations']:
             return [permissions.AllowAny()]
 
     def create(self, request, *args, **kwargs):
@@ -267,6 +276,12 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['get'])
+    def reservations(self, request, pk=None):
+        room = self.get_object()
+        reservations = Reservation.objects.filter(room=room)
+        serializer = Tan_ReservationSerializer(reservations, many=True)
+        return Response(serializer.data)
 
 class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     queryset = RoomImage.objects.all()
@@ -583,6 +598,17 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
         serializer = Tan_ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['get'], url_path='feedbacks')
+    def get_feedbacks(self, request, pk=None):
+        try:
+            reservation = self.get_object()
+            feedbacks = Feedback.objects.filter(reservation=reservation)
+            serializer = Tan_FeedbackSerializer(feedbacks, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Reservation.DoesNotExist:
+            return Response({"detail": "Reservation not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView,generics.UpdateAPIView):
@@ -665,6 +691,22 @@ class Tan_ReservationServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response({'detail': 'Field "active" is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class SendEmailViewSet(viewsets.ViewSet):
+    def create(self, request):
+        subject = request.data.get('subject')
+        message = request.data.get('message')
+        recipient_list = [request.data.get('recipient')]
+        sender = 'vantanss1001ez@gmail.com'
+
+        if not subject or not message or not recipient_list:
+            return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            send_mail(subject, message, sender, recipient_list)
+            return Response({'success': True})
+        except Exception as e:
+            return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class Tan_BillViewSet(viewsets.ViewSet, generics.ListCreateAPIView):

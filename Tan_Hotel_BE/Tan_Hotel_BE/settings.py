@@ -4,12 +4,12 @@ import cloudinary.uploader
 import cloudinary.api
 import os  # Đảm bảo import os để sử dụng biến môi trường
 
-# Cloudinary
-cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'vantan'),
-    api_key=os.getenv('CLOUDINARY_API_KEY', '774148986844264'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET', 'mKbiOnwPv7W2EDdosKk31dww9Uc')
-)
+# # Cloudinary
+# cloudinary.config(
+#     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'vantan'),
+#     api_key=os.getenv('CLOUDINARY_API_KEY', '774148986844264'),
+#     api_secret=os.getenv('CLOUDINARY_API_SECRET', 'mKbiOnwPv7W2EDdosKk31dww9Uc')
+# )
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -19,9 +19,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-# Google OAuth2
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '391738320330-6qn6mo8tras1b4uqa9bbuehmjip44lir.apps.googleusercontent.com')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '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')
+# # Google OAuth2
+# GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'vantanss1001ez@gmail.com')
+# GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', 'gokkjfaytssgjyok')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

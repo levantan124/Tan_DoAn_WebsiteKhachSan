@@ -15,6 +15,8 @@ import RoomDetails391 from './components/Main391/roomdetails';
 import BookingHistory391 from "./components/Main391/bookinghistory"
 import Cart391 from "./components/Main391/cart";
 
+import Home391 from "./components/Home391/home";
+
 // STAFF
 import ServiceList391 from "./components/Staff391/ServiceList391"
 import ReservationList391 from "./components/Staff391/ReservationList391"
@@ -37,16 +39,18 @@ const App = () => {
   return (
     <MyUserContext.Provider value={user}>
       <Router>
+      <Navbar />
         <Layout>
           <Routes>
-            <Route path="/" element={<Popular391 />} />
+            <Route path="/" element={<Home391 />} />
+            {/* <Route path="/" element={<Popular391 />} /> */}
             <Route path="/login" element={<LogIn391 />} />
             <Route path="/signup" element={<Signup391 />} />
             <Route path="/info" element={<Info391 />} />
             <Route path="/booking-history" element={<BookingHistory391 />} />
             <Route path="/room/:id" element={<RoomDetails391 />} />
             <Route path="/cart" element={<Cart391 />} />
-
+    
             {/* STAFF */}
             <Route path="/services-list" element={<ServiceList391 />} />
             <Route path="/reservations-list" element={<ReservationList391 />} />
@@ -75,7 +79,7 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       {/* {!isLoginOrSignupPage && <Header391 />} */}
 
       <main>{children}</main>

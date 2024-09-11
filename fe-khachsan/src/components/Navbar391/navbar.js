@@ -4,7 +4,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { MyUserContext } from "../../configs391/Context391";
-import { FaArrowUp } from 'react-icons/fa'; 
+import { FaArrowUp, FaFacebookF, FaInstagram, FaPhoneAlt, FaEnvelope } from 'react-icons/fa'; 
 import { MdOutlineLocalGroceryStore } from "react-icons/md";
 
 const NavBar = () => {
@@ -31,11 +31,8 @@ const NavBar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Remove token and user from cookies
     cookie.remove("token");
     cookie.remove("user");
-    
-    // Redirect to home page
     navigate("/", { state: { message: "You have been logged out!" } });
   };
 
@@ -46,41 +43,64 @@ const NavBar = () => {
   return (
     <>
       <nav css={[navStyle, isScrolled && scrolledNavStyle]}>
-        <div css={logoStyle}>Tan_Hotel</div>
-        
-        <ul css={navLinksStyle}>
-          <li><Link to="/" css={linkStyle}>Trang chủ</Link></li>
-          {user ? (
-            <>
-             
-              <li><Link to="/booking-history" css={linkStyle}>Lịch sử đặt phòng</Link></li>
-              <li css={dropdownContainerStyle}>
-                <li><Link to="/info" css={linkStyle}>{user.name}</Link></li>
-                <ul css={dropdownContentStyle}>
-                  {user.role === 2 && (
-                    <>
-                      <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
-                      <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
-                      <li><Link to="/checkout-list" css={dropdownLinkStyle}>Trả phòng</Link></li>
-                      <li><Link to="/bill-list" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
-                    </>
-                  )}
-                  {(user.is_superuser || user.role === 1) && (
-                    <li><Link to="/existing-rooms" css={dropdownLinkStyle}>QL Phòng</Link></li>
-                  )}
-                  <li><Link to="/" onClick={handleLogout} css={dropdownLinkStyle}>Đăng xuất</Link></li>
-                </ul>
-              </li>
-              <li css={cartIconStyle}>
-                <Link to="/cart" css={linkStyle}>
-                  <MdOutlineLocalGroceryStore />
-                </Link>
-              </li>
-            </>
-          ) : (
-            <li><Link to="/login" css={linkStyle}>Đăng nhập</Link></li>
-          )}
-        </ul>
+        <div css={infoWrapperStyle}>
+          <div css={contactInfoStyle}>
+            <span css={infoStyle}>
+              <FaPhoneAlt /> +84 324 899 899
+            </span>
+            <a href="mailto:tanhotel247@tanhotel.com" css={infoStyle}>
+              <FaEnvelope /> tanhotel247@tanhotel.com
+            </a>
+          </div>
+
+
+          <div css={socialIconsStyle}>
+            <a href="https://facebook.com" css={socialIconStyle}><FaFacebookF /></a>
+            <a href="https://instagram.com" css={socialIconStyle}><FaInstagram /></a>
+
+            {!user ? (
+              <Link to="/login" css={loginButtonStyle}>Đăng nhập</Link>
+            ) : (
+              <Link to="/" onClick={handleLogout} css={loginButtonStyle}>Đăng xuất</Link>
+            )}
+          </div>
+        </div>
+
+        <div css={horizontalLine}></div>
+
+        <div css={navContentStyle}>
+          <div css={logoStyle}>Tan_Hotel</div>
+
+          <ul css={navLinksStyle}>
+            <li><Link to="/" css={linkStyle}>Trang chủ</Link></li>
+            {user && (
+              <>
+                <li><Link to="/booking-history" css={linkStyle}>Lịch sử đặt phòng</Link></li>
+                <li css={dropdownContainerStyle}>
+                  <li><Link to="/info" css={linkStyle}>{user.name}</Link></li>
+                  <ul css={dropdownContentStyle}>
+                    {user.role === 2 && (
+                      <>
+                        <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
+                        <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
+                        <li><Link to="/checkout-list" css={dropdownLinkStyle}>Trả phòng</Link></li>
+                        <li><Link to="/bill-list" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
+                      </>
+                    )}
+                    {(user.is_superuser || user.role === 1) && (
+                      <li><Link to="/existing-rooms" css={dropdownLinkStyle}>QL Phòng</Link></li>
+                    )}
+                  </ul>
+                </li>
+                <li css={cartIconStyle}>
+                  <Link to="/cart" css={linkStyle}>
+                    <MdOutlineLocalGroceryStore />
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
       </nav>
 
       {showScrollTopButton && (
@@ -92,14 +112,12 @@ const NavBar = () => {
   );
 };
 
+
 const navStyle = css`
-  position: sticky; 
+  position: sticky;
   top: 1rem;
   z-index: 9999;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 0.4rem 0.8rem;
   background-color: #ffffff;
   width: 90%;
   max-width: 1200px;
@@ -116,17 +134,48 @@ const scrolledNavStyle = css`
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
+const navContentStyle = css`
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  width: 100%;
+
+`;
+
+const infoWrapperStyle = css`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const contactInfoStyle = css`
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+`;
+
+const socialIconsStyle = css`
+  display: flex;
+  gap: 0.8rem;
+`;
+
 const logoStyle = css`
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #333;
+  
 `;
 
 const navLinksStyle = css`
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.2rem;
 `;
 
 const linkStyle = css`
@@ -176,7 +225,7 @@ const dropdownLinkStyle = css`
 `;
 
 const cartIconStyle = css`
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #333;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -184,6 +233,42 @@ const cartIconStyle = css`
   &:hover {
     color: #ff6347;
   }
+`;
+
+const loginButtonStyle = css`
+  border-radius: 20px solid #333;
+  font-weight: 350;
+  color: black;
+  transition: 0.3s;
+  text-decoration: none;
+
+  &:hover {
+    color: #ff6347;
+  }
+`;
+
+const horizontalLine = css`
+  width: 100%;
+  height: 0.5px;
+  background-color: #ddd;
+  margin: 0.1rem 0;
+`;
+
+const socialIconStyle = css`
+  font-size: 1.1rem;
+  color: #333;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #ff6347;
+  }
+`;
+
+const infoStyle = css`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #333;
 `;
 
 const scrollTopButtonStyle = css`

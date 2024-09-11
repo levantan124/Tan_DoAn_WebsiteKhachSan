@@ -15,9 +15,9 @@ const Header = () => (
           <div className="form-group reveal" css={formGroupStyle}>
             <div className="input-group">
               <input type="text" />
-              <label>Location</label>
+              <label>Phòng</label>
             </div>
-            <p>Where are you going?</p>
+            <p>Bạn muốn tìm loại phòng nào?</p>
           </div>
           <div className="form-group reveal" css={formGroupStyle}>
             <div className="input-group">
@@ -36,9 +36,9 @@ const Header = () => (
           <div className="form-group reveal" css={formGroupStyle}>
             <div className="input-group">
               <input type="text" />
-              <label>Guests</label>
+              <label>Người</label>
             </div>
-            <p>Add guests</p>
+            <p>Số người ở?</p>
           </div>
         </div>
         <button className="btn reveal" css={buttonStyle}>

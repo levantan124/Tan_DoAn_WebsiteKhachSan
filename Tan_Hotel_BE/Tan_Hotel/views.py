@@ -787,6 +787,18 @@ class Tan_FeedbackViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         # Lưu feedback mới
         serializer.save()
 
+    @action(detail=True, methods=['get'])
+    def customer_info(self, request, pk=None):
+        try:
+            feedback = Feedback.objects.get(pk=pk)
+            customer = feedback.guest
+            serializer = Tan_AccountSerializer(customer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Feedback.DoesNotExist:
+            return Response({'detail': 'Feedback not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Account.DoesNotExist:
+            return Response({'detail': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class Tan_PromotionViewSet(viewsets.ModelViewSet):
     queryset = Promotion.objects.all()
     serializer_class = Tan_PromotionSerializer

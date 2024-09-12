@@ -196,9 +196,11 @@ const RoomDetails = () => {
             {isRoomAvailable ? "Đặt phòng" : "Hết phòng"}
           </button>
         </div>
-        <Feedback391 />
+
       </div>
+      <Feedback391 />
     </section>
+    
   );
 };
 
@@ -230,7 +232,7 @@ const detailsStyle = css`
   max-width: 1200px;
   margin: auto;
   background: #fff;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;

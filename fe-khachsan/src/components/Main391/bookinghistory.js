@@ -20,6 +20,7 @@ const BookingHistory = () => {
     const fetchReservations = async () => {
       try {
         const response = await authAPI().get('/reservations/get-reservation-guest/');
+        console.log(response)
         setReservations(response.data);
       } catch (error) {
         console.error("Failed to fetch reservations:", error);
@@ -110,6 +111,7 @@ const BookingHistory = () => {
               <FaStar
                 key={star}
                 size={24}
+
                 color={star <= rating ? '#ffa500' : '#e4e5e9'}
                 onClick={() => handleRating(star)}
                 css={starStyle}

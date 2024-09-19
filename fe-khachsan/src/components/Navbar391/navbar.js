@@ -6,12 +6,16 @@ import cookie from 'react-cookies';
 import { MyUserContext } from "../../configs391/Context391";
 import { FaArrowUp, FaFacebookF, FaInstagram, FaPhoneAlt, FaEnvelope } from 'react-icons/fa'; 
 import { MdOutlineLocalGroceryStore } from "react-icons/md";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import Notification from '../Main391/notification';
+
 
 const NavBar = () => {
   const user = useContext(MyUserContext);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [showScrollTopButton, setShowScrollTopButton] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,13 +50,12 @@ const NavBar = () => {
         <div css={infoWrapperStyle}>
           <div css={contactInfoStyle}>
             <span css={infoStyle}>
-              <FaPhoneAlt /> +84 324 899 899
+              <FaPhoneAlt /> +84 215 1050 391
             </span>
             <a href="mailto:tanhotel247@tanhotel.com" css={infoStyle}>
               <FaEnvelope /> tanhotel247@tanhotel.com
             </a>
           </div>
-
 
           <div css={socialIconsStyle}>
             <a href="https://facebook.com" css={socialIconStyle}><FaFacebookF /></a>
@@ -69,8 +72,7 @@ const NavBar = () => {
         <div css={horizontalLine}></div>
 
         <div css={navContentStyle}>
-          <div css={logoStyle}>Tan_Hotel</div>
-
+          <div><Link to="/" css={logoStyle}>Tan_Hotel</Link></div>
           <ul css={navLinksStyle}>
             <li><Link to="/" css={linkStyle}>Trang chủ</Link></li>
             {user && (
@@ -96,6 +98,9 @@ const NavBar = () => {
                   <Link to="/cart" css={linkStyle}>
                     <MdOutlineLocalGroceryStore />
                   </Link>
+                  <Link to="#" onClick={() => setIsNotificationOpen(true)} css={linkStyle}>
+                    <IoMdNotificationsOutline />
+                  </Link>
                 </li>
               </>
             )}
@@ -108,30 +113,34 @@ const NavBar = () => {
           <FaArrowUp />
         </button>
       )}
+
+      <Notification isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
     </>
   );
 };
-
 
 const navStyle = css`
   position: sticky;
   top: 1rem;
   z-index: 9999;
-  padding: 0.4rem 0.8rem;
+  padding: 1px 0.8rem;
   background-color: #ffffff;
   width: 90%;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 20px;
-  transition: top 0.3s ease, width 0.3s ease;
+  border-radius: 10px;
+  transition: top 1s ease, width 0.5s ease, border-radius 0.3s ease;;
 `;
 
 const scrolledNavStyle = css`
   top: 0;
   background-color: #f8f9fa;
-  width: 100%;
+  width: 92%;
+  max-width: 100%;
+  border-radius: 9px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  transition: top 1s ease, width 0.5s ease, border-radius 0.3s ease;
 `;
 
 const navContentStyle = css`
@@ -139,7 +148,6 @@ const navContentStyle = css`
   justify-content: space-between; 
   align-items: center;
   width: 100%;
-
 `;
 
 const infoWrapperStyle = css`
@@ -168,7 +176,7 @@ const logoStyle = css`
   font-size: 1.4rem;
   font-weight: 700;
   color: #333;
-  
+  text-decoration: none;
 `;
 
 const navLinksStyle = css`
@@ -183,7 +191,7 @@ const linkStyle = css`
   color: black;
   transition: 0.3s;
   text-decoration: none;
-
+  padding: 0.3rem;
   &:hover {
     color: #ff6347;
   }
@@ -266,6 +274,7 @@ const socialIconStyle = css`
 
 const infoStyle = css`
   display: flex;
+  font-size:14px;
   align-items: center;
   gap: 0.4rem;
   color: #333;

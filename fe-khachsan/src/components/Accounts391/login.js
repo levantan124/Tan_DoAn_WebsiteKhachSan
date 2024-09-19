@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import cookie from 'react-cookies';
 import Signup from './singup'; // Fixed the import from 'singup' to 'Signup'
 import GoogleButton from './google';
+import Captcha from "./captcha"
 import APIs, { endpoints, authAPI } from '../../configs391/API391';
 
 const Login = () => {
@@ -41,8 +42,10 @@ const Login = () => {
       let res = await APIs.post(endpoints['login'], new URLSearchParams({
         'username': username,
         'password': password,
-        'client_id': '5j5685BlfLjZ1SZ50c59oM6C57M2lQnhMXmK9b7e',
-        'client_secret': 'kQW8noCmtlgt1r0S9NsNAgpMmERDJDlbVbplYBvKWepg6kQOE4GWH3zaE9go6tGndYFVafZy7ApxisTieYurUGQuGxwfduM50YK8Q1l9fiUj3bPRcVcdF6cUOBhXhhp9',
+        // 'client_id': '5j5685BlfLjZ1SZ50c59oM6C57M2lQnhMXmK9b7e',
+        // 'client_secret': 'kQW8noCmtlgt1r0S9NsNAgpMmERDJDlbVbplYBvKWepg6kQOE4GWH3zaE9go6tGndYFVafZy7ApxisTieYurUGQuGxwfduM50YK8Q1l9fiUj3bPRcVcdF6cUOBhXhhp9',
+        'client_id': 'qNKmGDefK6UmgHqkBeSKYwUZ3pbopoNusIT6Otod',
+        'client_secret': 'cOvrruiqmyJh3PmcY3Nf8ajxbXyOZBuKq22xYBqgSzkJlvDqlHRbFJP7NMQt3ZejbThW74LR9LlY4HCu4rwtuBu5TGjlM3ECxCnnb6mIlacYUZFLMDbdfu9a2N01atuC',
         'grant_type': 'password',
       }), {
         headers: {

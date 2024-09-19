@@ -15,6 +15,18 @@ cloudinary.config(
     api_secret=os.getenv('CLOUDINARY_API_SECRET', 'mKbiOnwPv7W2EDdosKk31dww9Uc')
 )
 
+
+#VNPay
+VNPAY_TMN_CODE = os.environ.get("VNPAY_TMN_CODE")
+VNPAY_HASH_SECRET_KEY = os.environ.get("VNPAY_HASH_SECRET_KEY")
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+VNPAY_RETURN_URL = 'https://oceanhotel.vercel.app/payment-result'
+
+# Google reCAPTCHA settings
+RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '6LfIuEEqAAAAAJ0blbtnwm1pQ_xddxWSLdKTCyMy')
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '6LfIuEEqAAAAAPTbSd3BmU3UZoPZH0HLCnrLu8IG')
+
+
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -43,6 +55,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
 ]
+
 
 AUTH_USER_MODEL = 'Tan_Hotel.Account'
 

@@ -1,6 +1,8 @@
 # views.py
 import time
 from datetime import datetime
+
+import requests
 from django.contrib.auth.models import AnonymousUser
 from oauth2_provider.settings import oauth2_settings
 from rest_framework import viewsets, generics, parsers, permissions, exceptions, status, serializers
@@ -11,6 +13,7 @@ from google.auth.transport import requests as gg_requests
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -38,10 +41,11 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
     permission_classes = [permissions.AllowAny()]  # role nào vô cùng đc
 
     def get_permissions(self):
-        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login']:
+        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login', 'verify-captcha']:
             # permission_classes = [IsAuthenticated]
             return [permissions.AllowAny()]
-        elif self.action in 'create':
+        elif self.action == 'create':
+            print(f"self.action: {self.action}")
             if isinstance(self.request.user, AnonymousUser):
                 if self.request.data and (self.request.data.get('role') == 3):
                     return [permissions.AllowAny()]
@@ -57,8 +61,8 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
                     return [permissions.IsAuthenticated()]
                 else:
                     raise exceptions.PermissionDenied()
-        elif self.action in ['delete_staff']:
-            permission_classes = [perm.Tan_IsAdmin()]
+            elif self.action == 'delete_staff':
+                return [perm.Tan_IsAdmin()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
@@ -115,8 +119,6 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
             user_email = idinfo.get('email')
             user_name = idinfo.get('name')
             user_picture = idinfo.get('picture')
-            print("Token issue time:", idinfo.get('iat'))
-            print("Current server time:", time.time())
 
             if not user_email:
                 return Response({'error': 'Không tìm thấy email trong mã xác thực'}, status=status.HTTP_400_BAD_REQUEST)
@@ -149,6 +151,23 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
             return Response({'error': 'Xác thực không thành công', 'details': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['post'], url_path='verify-captcha', detail=False)
+    def verify_captcha(self, request):
+        captcha_response = request.data.get('g-recaptcha-response')
+        if not captcha_response:
+            return Response({'error': 'Mã xác thực CAPTCHA không được cung cấp'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = {
+            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'response': captcha_response
+        }
+        response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = response.json()
+
+        if result.get("success"):
+            return Response({'success': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Xác thực CAPTCHA không thành công'}, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
@@ -399,7 +418,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
             else:
                 raise PermissionDenied("Only receptionists can cancel reservations.")
         elif self.action == 'get_reservation_history':
-            return [permissions.IsAuthenticated(), permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]
         return [permissions.AllowAny()]
 
     def get_queryset(self):
@@ -594,7 +613,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
     @action(methods=['get'], url_path='reservation-history', detail=False)
     def get_reservation_history(self, request):
         # Lấy lịch sử đặt phòng của khách hàng
-        reservations = Reservation.objects.filter(guest=request.user).order_by('-book_date')
+        reservations = Reservation.objects.all().order_by('-book_date')
         serializer = Tan_ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

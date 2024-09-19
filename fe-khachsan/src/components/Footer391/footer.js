@@ -5,42 +5,42 @@ const Footer = () => (
   <footer css={footerStyle}>
     <div css={footerContainerStyle}>
       <div css={footerColStyle}>
-        <h3>Lorem</h3>
+        <h3>Phương châm</h3>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Eius, expedita! Doloremque facilis hic veritatis ea quisquam nesciunt
-          quos, ipsa ex!
+        Tại khách sạn của chúng tôi, sự hài lòng của khách hàng là ưu tiên hàng đầu. 
+        Luôn sẵn sàng hỗ trợ nhanh chóng, 
+        đảm bảo mọi nhu cầu của quý khách được đáp ứng.
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias
-          impedit rerum molestiae fugit dignissimos ipsam ab veritatis dolor
-          deserunt eaque?
+        Dù chọn phòng cao cấp hay tiêu chuẩn, 
+        quý khách đều được tận hưởng tiện nghi sang trọng và dịch vụ đa dạng, 
+        giúp kỳ nghỉ thêm trọn vẹn và thoải mái.
         </p>
       </div>
       <div css={footerColStyle}>
-        <h4>Company</h4>
+        <h4>Công ty</h4>
         <ul>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Our Team</a></li>
+          <li><a href="#">Về chúng tôi</a></li>
+          <li><a href="#">Đội ngũ</a></li>
           <li><a href="#">Blog</a></li>
           <li><a href="#">Book</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Liên hệ với chúng tôi</a></li>
         </ul>
       </div>
       <div css={footerColStyle}>
-        <h4>Legal</h4>
+        <h4>Trợ giúp</h4>
         <ul>
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">Terms & Conditions</a></li>
-          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#">Điều khoản và điểu kiện</a></li>
+          <li><a href="#">Chính sách bảo mật</a></li>
         </ul>
       </div>
       <div css={footerColStyle}>
-        <h4>Resources</h4>
+        <h4>Tài nguyên</h4>
         <ul>
-          <li><a href="#">Social Media</a></li>
-          <li><a href="#">Help Center</a></li>
-          <li><a href="#">Partnerships</a></li>
+          <li><a href="#">Phương tiện truyền thông xã hội</a></li>
+          <li><a href="#">Trung tâm hỗ trợ</a></li>
+          <li><a href="#">Quan hệ đối tác</a></li>
         </ul>
       </div>
     </div>

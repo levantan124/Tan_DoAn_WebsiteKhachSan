@@ -6,6 +6,8 @@ import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
 import cookie from "react-cookies";
 import Feedback391 from './feeback';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zrow3vckdxfp7f0k.jpg`;
@@ -130,14 +132,13 @@ const RoomDetails = () => {
         }
       });
   
-      alert("Đặt phòng thành công! Một email xác nhận đã được gửi đến bạn.");
+      toast.success("Đặt phòng thành công! Một email xác nhận đã được gửi đến bạn.");
       console.log("Reservation response:", response.data);
     } catch (error) {
       console.error("Failed to book room:", error);
-      alert("Đặt phòng thất bại. Vui lòng thử lại.");
+      toast.error("Đặt phòng thất bại. Vui lòng thử lại.");
     }
   };
-  
 
   const isRoomAvailable = room.status !== 1;
 
@@ -196,11 +197,10 @@ const RoomDetails = () => {
             {isRoomAvailable ? "Đặt phòng" : "Hết phòng"}
           </button>
         </div>
-
       </div>
       <Feedback391 />
+      <ToastContainer />
     </section>
-    
   );
 };
 

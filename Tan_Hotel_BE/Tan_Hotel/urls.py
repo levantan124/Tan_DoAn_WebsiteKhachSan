@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 from .views import *
+from .payment import PaymentViewSet
 
 # Khai báo router và đăng ký các viewsets
 router = DefaultRouter()
@@ -15,7 +16,8 @@ router.register(r'services', views.Tan_ServiceViewSet, basename='service')
 router.register(r'reservation_services', views.Tan_ReservationServiceViewSet, basename='reservation_services')
 router.register(r'bills', views.Tan_BillViewSet, basename='bill')
 router.register(r'refunds', views.Tan_RefundViewSet, basename='refund')
-router.register(r'payments', views.Tan_PaymentViewSet, basename='payment')
+# router.register(r'payments', views.Tan_PaymentViewSet, basename='payment')
+router.register(r'payments', PaymentViewSet, basename='payment')
 router.register(r'feedbacks', views.Tan_FeedbackViewSet, basename='feedback')
 router.register(r'promotions', views.Tan_PromotionViewSet, basename='promotion')
 

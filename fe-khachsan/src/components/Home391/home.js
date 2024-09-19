@@ -11,8 +11,6 @@ import Reward from "../Main391/reward";
 import Footer from "../Footer391/footer";
 
 
-
-
 // import { useAuth } from "../auth/AuthProvider"
 const Home = () => {
 	const location = useLocation();
@@ -66,8 +64,8 @@ const Home = () => {
 			<div className="container">
                 <Header />
 				<Popular />
-				<Client />
-				<Reward />
+				{/* <Client />
+				<Reward /> */}
 				<Footer />
 			</div>
 		</section>

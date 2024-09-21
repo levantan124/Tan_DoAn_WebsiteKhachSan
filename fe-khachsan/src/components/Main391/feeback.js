@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { authAPI } from '../../configs391/API391';
 import { useParams } from 'react-router-dom';
 
-const Feedback = () => {
-  const { id } = useParams(); // Get the reservation ID from the URL
+const Feedback391 = ({ onAverageRatingChange }) => {
+  const { id } = useParams(); // Get the room ID from the URL
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,38 +29,43 @@ const Feedback = () => {
   }, [id]);
 
   useEffect(() => {
-    if (reservationIds.length > 0) {
-      const fetchFeedbacks = async () => {
-        try {
-          const feedbackRequests = reservationIds.map(reservationId =>
-            authAPI().get(`/reservations/${reservationId}/feedbacks/`)
-          );
-          const responses = await Promise.all(feedbackRequests);
-          const feedbacksData = responses.flatMap(response => response.data);
+    const fetchFeedbacks = async () => {
+      if (reservationIds.length === 0) return;
 
-          // Fetch customer info for each feedback
-          const feedbacksWithCustomerInfo = await Promise.all(
-            feedbacksData.map(async feedback => {
-              const customerResponse = await authAPI().get(`/feedbacks/${feedback.id}/customer_info/`);
-              return { ...feedback, guestName: customerResponse.data.name, avatar: customerResponse.data.avatar };
-            })
-          );
+      try {
+        const feedbackRequests = reservationIds.map(reservationId =>
+          authAPI().get(`/reservations/${reservationId}/feedbacks/`)
+        );
+        const responses = await Promise.all(feedbackRequests);
+        const feedbacksData = responses.flatMap(response => response.data);
 
-          // Sort feedbacks by rating (highest first)
-          feedbacksWithCustomerInfo.sort((a, b) => b.rating - a.rating);
+        const feedbacksWithCustomerInfo = await Promise.all(
+          feedbacksData.map(async feedback => {
+            const customerResponse = await authAPI().get(`/feedbacks/${feedback.id}/customer_info/`);
+            const rating = feedback.rating !== undefined ? feedback.rating : 5;
+            return { ...feedback, guestName: customerResponse.data.name, avatar: customerResponse.data.avatar };
+          })
+        );
 
-          setFeedbacks(feedbacksWithCustomerInfo);
-        } catch (error) {
-          console.error("Failed to fetch feedbacks:", error);
-          setError("Failed to load feedbacks.");
-        } finally {
-          setLoading(false);
-        }
-      };
+        feedbacksWithCustomerInfo.sort((a, b) => b.rating - a.rating);
+        setFeedbacks(feedbacksWithCustomerInfo);
 
-      fetchFeedbacks();
-    }
-  }, [reservationIds]);
+        // Calculate and set average rating
+        const averageRating = feedbacksWithCustomerInfo.length > 0
+          ? feedbacksWithCustomerInfo.reduce((acc, feedback) => acc + feedback.rating, 0) / feedbacksWithCustomerInfo.length
+          : 5;
+        onAverageRatingChange(averageRating);
+
+      } catch (error) {
+        console.error("Failed to fetch feedbacks:", error);
+        setError("Failed to load feedbacks.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedbacks();
+  }, [reservationIds, onAverageRatingChange]);
 
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating);
@@ -98,7 +103,7 @@ const Feedback = () => {
                 <li key={feedback.id} css={feedbackItemStyle}>
                   <div css={feedbackHeaderStyle}>
                     <img
-                      src={feedback.avatar ? feedback.avatar : 'https://res.cloudinary.com/vantan/image/upload/v1725874989/avt_avej6j.jpg'}
+                      src={feedback.avatar || 'https://res.cloudinary.com/vantan/image/upload/v1725874989/avt_avej6j.jpg'}
                       alt={feedback.guestName}
                       css={avatarStyle}
                     />
@@ -227,4 +232,4 @@ const toggleButtonStyle = css`
   }
 `;
 
-export default Feedback;
+export default Feedback391;

@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
@@ -14,13 +14,14 @@ const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zr
 
 const RoomDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
   const [room, setRoom] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
   const [roomImages, setRoomImages] = useState(null);
   const [checkInDate, setCheckInDate] = useState('');
   const [numberOfNights, setNumberOfNights] = useState(1);
   const [checkOutDate, setCheckOutDate] = useState('');
+  const [averageRating, setAverageRating] = useState(0); // Added state for average rating
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
@@ -58,8 +59,6 @@ const RoomDetails = () => {
     fetchRoomTypes();
   }, []);
 
- 
-
   useEffect(() => {
     if (checkInDate && numberOfNights > 0) {
       const checkIn = new Date(checkInDate);
@@ -76,8 +75,6 @@ const RoomDetails = () => {
     return total;
   }, [room, roomTypes, numberOfNights]);
 
-  
-
   if (!room || !roomTypes.length) return <p>Loading...</p>;
 
   const roomType = roomTypes.find(rt => rt.id === room.room_type);
@@ -87,9 +84,6 @@ const RoomDetails = () => {
     ? [roomImages.image1, roomImages.image2, roomImages.image3, roomImages.image4].map(img => `${CLOUDINARY_BASE_URL}${img}`)
     : [DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL];
 
-
-    
-    
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -101,20 +95,16 @@ const RoomDetails = () => {
     nextArrow: <CustomNextArrow />
   };
 
-  
-
   const handleBookRoom = async () => {
     const token = cookie.load('token');
-  
+
     if (!token) {
       alert("Vui lòng đăng nhập để đặt phòng.");
       navigate('/login'); // Redirect to login page
       return;
     }
 
-  
     try {
-      // Book the room
       const response = await authAPI().post('/reservations/', {
         room: room.id,
         book_date: new Date().toISOString().split('T')[0],
@@ -126,35 +116,32 @@ const RoomDetails = () => {
           "Content-Type": "application/json"
         }
       });
-      const booking = response.data
+      const booking = response.data;
       const payment = calculatePayment();
-      if(response){
-        navigate("/payment", { state: { booking, payment} });
+      if (response) {
+        navigate("/payment", { state: { booking, payment } });
       }
-  
-      // Get guest email
+
       const guestResponse = await authAPI().get(`/accounts/${response.data.guest}/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           "Content-Type": "application/json"
         }
       });
-  
-      // Create email data
+
       const emailData = {
         subject: 'Booking Confirmation',
         message: `Your booking is confirmed`,
         recipient: guestResponse.data.email,
       };
-  
-      // Send the confirmation email
+
       await authAPI().post('/sendemail/', emailData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           "Content-Type": "application/json"
         }
       });
-  
+
       toast.success("Đặt phòng thành công! Một email xác nhận đã được gửi đến bạn.");
       console.log("Reservation response:", response.data);
     } catch (error) {
@@ -170,6 +157,10 @@ const RoomDetails = () => {
       <h2>Thông tin phòng</h2>
       <div css={detailsStyle}>
         <div css={sliderWrapperStyle}>
+          {/* Display average rating here */}
+          <div css={averageRatingStyle}>
+            {`★ ${averageRating.toFixed(1)}/5`}
+          </div>
           <Slider {...sliderSettings}>
             {imageUrls.map((url, index) => (
               <div key={index} css={slideStyle}>
@@ -221,11 +212,24 @@ const RoomDetails = () => {
           </button>
         </div>
       </div>
-      <Feedback391 />
+      <Feedback391 onAverageRatingChange={setAverageRating} />
       <ToastContainer />
     </section>
   );
 };
+
+// Styling for the average rating display
+const averageRatingStyle = css`
+  position: absolute; /* Adjust to overlay on the slider */
+  bottom: 15px; /* Adjust as needed */
+  left: 55px;
+  transform: translateX(-50%);
+  z-index: 1; /* Ensure it's above the slider */
+  font-weight: bold;
+  font-size: 1.3rem;
+  border-radius: 10px;
+  color: #fbbf24;
+`;
 
 const CustomPrevArrow = (props) => (
   <button {...props} css={[arrowStyle, css`left: 10px;`]}>
@@ -281,7 +285,8 @@ const imageStyle = css`
   width: 100%;
   height: auto;
   object-fit: cover;
-  max-height: 400px;
+  max-height: 250px;
+  border-radius: 1rem;
 `;
 
 const infoStyle = css`

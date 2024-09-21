@@ -265,12 +265,15 @@ const horizontalLine = css`
 const socialIconStyle = css`
   font-size: 1.1rem;
   color: #333;
-  transition: color 0.3s;
+  transition: color 0.3s, transform 0.3s;
 
   &:hover {
     color: #ff6347;
+    transform: scale(1.3);
+    z-index: 10;
   }
 `;
+
 
 const infoStyle = css`
   display: flex;

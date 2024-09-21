@@ -3,26 +3,22 @@ import { css } from '@emotion/react';
 
 const Footer = () => (
   <footer css={footerStyle}>
+  <div css={dividerStyle}></div>
     <div css={footerContainerStyle}>
       <div css={footerColStyle}>
-        <h3>Phương châm</h3>
+        <h3>Liên hệ</h3>
         <p>
         Chăm sóc tận tình
         </p>
         <p>
         Sự tiện nghi đang dạng dịch vụ.
         </p>
-        <p>
-        Sự hài lòng của khách hàng là ưu tiên hàng đầu. 
-        </p>
       </div>
       <div css={footerColStyle}>
         <h4>Công ty</h4>
         <ul>
-          <li><a href="#">Về chúng tôi</a></li>
           <li><a href="#">Đội ngũ</a></li>
           <li><a href="#">Blog</a></li>
-          <li><a href="#">Book</a></li>
           <li><a href="#">Liên hệ với chúng tôi</a></li>
         </ul>
       </div>
@@ -43,12 +39,19 @@ const Footer = () => (
         </ul>
       </div>
     </div>
+    <div css={dividerStyle}></div>
     <div css={footerBarStyle}>
-      <p>Copyright &copy; 2024 Code Hub. All rights reserved</p>
+      <p>Copyright &copy; 2024 Tan_Hotel. All rights reserved</p>
     </div>
   </footer>
 );
 
+const dividerStyle = css`
+  width: 100%;
+  height: 1.5px;
+  background-color: #f0d0f9;
+  margin: auto;
+`;
 
 const footerStyle = css`
   background: var(--extra-light);
@@ -62,7 +65,7 @@ const footerContainerStyle = css`
   gap: 5rem;
   max-width: var(--max-width);
   margin: auto;
-  padding: 2rem 1rem;
+  padding: 0rem 1rem;
 `;
 
 const footerColStyle = css`
@@ -107,7 +110,7 @@ const footerBarStyle = css`
   position: relative;
   max-width: var(--max-width);
   margin: auto;
-  padding: 1rem;
+  padding: 10px;
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-light);

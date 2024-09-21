@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { endpoints, authAPI } from '../../configs391/API391';
 import { MdOutlineLocalGroceryStore } from "react-icons/md";
+import Feedback391 from './feeback';
 
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 
@@ -45,25 +46,30 @@ const Popular = () => {
   const displayedRooms = showAll ? rooms : rooms.slice(0, 6);
 
   const handleSaveRoom = (room) => {
-    // Lấy giỏ hàng hiện tại từ localStorage hoặc khởi tạo giỏ hàng rỗng nếu chưa có
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const roomExists = cart.find(item => item.id === room.id);
 
-  // Kiểm tra xem phòng đã có trong giỏ hàng chưa
-  const roomExists = cart.find(item => item.id === room.id);
+    if (!roomExists) {
+      cart.push(room);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert('Phòng đã được thêm vào giỏ hàng!');
+    } else {
+      alert('Phòng đã có trong giỏ hàng.');
+    }
+  };
 
-  if (!roomExists) {
-    // Thêm phòng mới vào giỏ hàng
-    cart.push(room);
+  // Hàm tính điểm trung bình
+  const calculateAverageRating = (feedbacks) => {
+    if (!feedbacks.length) return 0;
+    const total = feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0);
+    return Math.round(total / feedbacks.length); // Làm tròn số nguyên
+  };
 
-    // Lưu giỏ hàng đã cập nhật vào localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
-
-    // Thông báo cho người dùng hoặc cập nhật giao diện
-    alert('Phòng đã được thêm vào giỏ hàng!');
-  } else {
-    // Nếu phòng đã có trong giỏ hàng, thông báo cho người dùng
-    alert('Phòng đã có trong giỏ hàng.');
-  }
+  // Hàm hiển thị rating
+  const displayRatingStars = (averageRating) => {
+    return [...Array(5)].map((_, index) => (
+      <span key={index} css={index < averageRating ? starStyle : emptyStarStyle}>★</span>
+    ));
   };
 
   const sliderSettings = {
@@ -86,18 +92,21 @@ const Popular = () => {
           <div css={gridStyle}>
             {displayedRooms.map((room) => {
               const roomType = roomTypeMap[room.room_type] || {};
-              const imageUrl = room.image 
-                ? `${CLOUDINARY_BASE_URL}${room.image}` 
-                : null;
-              const isAvailable = room.status !== 1; // Giả sử status = 1 là hết phòng
+              const imageUrl = room.image ? `${CLOUDINARY_BASE_URL}${room.image}` : null;
+              const isAvailable = room.status !== 1;
+              const averageRating = calculateAverageRating(room.feedbacks || []); // Lấy feedback từ room
+
               return (
                 <div key={room.id} css={slideCardStyle}>
                   {imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt={room.name}
-                      css={imageStyle}
-                    />
+                    <div css={imageContainerStyle}>
+                      <img src={imageUrl} alt={room.name} css={imageStyle} />
+                      {/* Hiển thị rating */}
+                      <div css={ratingStyle}>
+                        {displayRatingStars(averageRating)}
+                        <span css={ratingTextStyle}>{averageRating}</span>
+                      </div>
+                    </div>
                   )}
                   <div css={contentStyle}>
                     <div css={headerStyle}>
@@ -123,18 +132,21 @@ const Popular = () => {
           <Slider {...sliderSettings}>
             {displayedRooms.map((room) => {
               const roomType = roomTypeMap[room.room_type] || {};
-              const imageUrl = room.image 
-                ? `${CLOUDINARY_BASE_URL}${room.image}` 
-                : null;
-              const isAvailable = room.status !== 1; // Giả sử status = 1 là hết phòng
+              const imageUrl = room.image ? `${CLOUDINARY_BASE_URL}${room.image}` : null;
+              const isAvailable = room.status !== 1;
+              const averageRating = calculateAverageRating(room.feedbacks || []); // Lấy feedback từ room
+
               return (
                 <div key={room.id} css={slideCardStyle}>
                   {imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt={room.name}
-                      css={imageStyle}
-                    />
+                    <div css={imageContainerStyle}>
+                      <img src={imageUrl} alt={room.name} css={imageStyle} />
+                      {/* Hiển thị rating */}
+                      <div css={ratingStyle}>
+                        {displayRatingStars(averageRating)}
+                        <span css={ratingTextStyle}>{averageRating}</span>
+                      </div>
+                    </div>
                   )}
                   <div css={iconStyle} onClick={() => handleSaveRoom(room)}>
                     <MdOutlineLocalGroceryStore />
@@ -179,6 +191,7 @@ const CustomNextArrow = (props) => (
   </button>
 );
 
+// Styles
 const sectionContainerStyle = css`
   text-align: center;
   padding: 5rem 0;
@@ -194,11 +207,11 @@ const slideCardStyle = css`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0.8rem;
+  border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  max-width: 300px;
+  max-width: 280px;
   margin: 0 10px;
   position: relative;
 
@@ -208,10 +221,38 @@ const slideCardStyle = css`
   }
 `;
 
+const imageContainerStyle = css`
+  position: relative;
+`;
+
 const imageStyle = css`
   width: 100%;
   height: 180px;
   object-fit: cover;
+`;
+
+const ratingStyle = css`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+`;
+
+const starStyle = css`
+  color: gold;
+  font-size: 16px;
+`;
+
+const emptyStarStyle = css`
+  color: lightgray;
+  font-size: 16px;
+`;
+
+const ratingTextStyle = css`
+  margin-left: 0.5rem;
+  font-size: 14px;
+  color: white;
 `;
 
 const contentStyle = css`
@@ -254,7 +295,6 @@ const bookingButtonStyle = (isAvailable) => css`
   transition: background-size 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
   text-decoration: none;
 
-  // Initial shadow and elevation
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
   &:hover {
@@ -322,6 +362,5 @@ const iconStyle = css`
   border-radius: 50%;
   padding: 10px;
 `;
-
 
 export default Popular;

@@ -14,6 +14,7 @@ import Info391 from "./components/Navbar391/info";
 import RoomDetails391 from './components/Main391/roomdetails';
 import BookingHistory391 from "./components/Main391/bookinghistory"
 import Cart391 from "./components/Main391/cart";
+import Sale from "./components/Main391/sale";
 
 import Home391 from "./components/Home391/home";
 
@@ -53,6 +54,7 @@ const App = () => {
             <Route path="/booking-history" element={<BookingHistory391 />} />
             <Route path="/room/:id" element={<RoomDetails391 />} />
             <Route path="/cart" element={<Cart391 />} />
+            <Route path="/sale" element={<Sale />} />
     
             {/* STAFF */}
             <Route path="/services-list" element={<ServiceList391 />} />

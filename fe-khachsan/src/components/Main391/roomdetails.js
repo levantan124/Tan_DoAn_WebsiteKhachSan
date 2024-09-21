@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from "react"
 import { useParams, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
@@ -58,6 +58,8 @@ const RoomDetails = () => {
     fetchRoomTypes();
   }, []);
 
+ 
+
   useEffect(() => {
     if (checkInDate && numberOfNights > 0) {
       const checkIn = new Date(checkInDate);
@@ -66,15 +68,28 @@ const RoomDetails = () => {
     }
   }, [checkInDate, numberOfNights]);
 
+  const calculatePayment = useCallback(() => {
+    const roomType = roomTypes.find(rt => rt.id === room?.room_type);
+    const price = roomType ? roomType.price : 0;
+    const paymentPerDay = price ? price : 0;
+    const total = numberOfNights * paymentPerDay;
+    return total;
+  }, [room, roomTypes, numberOfNights]);
+
+  
+
   if (!room || !roomTypes.length) return <p>Loading...</p>;
 
   const roomType = roomTypes.find(rt => rt.id === room.room_type);
-  const price = roomType ? roomType.price : 'N/A';
+  const price = roomType ? roomType.price : '0';
 
   const imageUrls = roomImages
     ? [roomImages.image1, roomImages.image2, roomImages.image3, roomImages.image4].map(img => `${CLOUDINARY_BASE_URL}${img}`)
     : [DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL, DEFAULT_IMAGE_URL];
 
+
+    
+    
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -86,6 +101,8 @@ const RoomDetails = () => {
     nextArrow: <CustomNextArrow />
   };
 
+  
+
   const handleBookRoom = async () => {
     const token = cookie.load('token');
   
@@ -94,6 +111,7 @@ const RoomDetails = () => {
       navigate('/login'); // Redirect to login page
       return;
     }
+
   
     try {
       // Book the room
@@ -108,6 +126,11 @@ const RoomDetails = () => {
           "Content-Type": "application/json"
         }
       });
+      const booking = response.data
+      const payment = calculatePayment();
+      if(response){
+        navigate("/payment", { state: { booking, payment} });
+      }
   
       // Get guest email
       const guestResponse = await authAPI().get(`/accounts/${response.data.guest}/`, {

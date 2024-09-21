@@ -66,8 +66,8 @@ const PaymentResult = () => {
                 // updateBookingStatus(bookingId, 'paid');
                 // updateVnpResponseCode(bookingId, queryParams.get('vnp_ResponseCode'));
                 // Sau khi cập nhật trạng thái thành công, có thể xóa `bookingId` khỏi localStorage
-                localStorage.removeItem('bookingId');
-                localStorage.removeItem('bookingConfirmationCode');
+                // localStorage.removeItem('bookingId');
+                // localStorage.removeItem('bookingConfirmationCode');
             }
         }
     }, [location.search]);

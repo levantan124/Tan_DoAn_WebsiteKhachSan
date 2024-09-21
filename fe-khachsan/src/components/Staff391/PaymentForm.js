@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { authAPI } from '../../configs391/API391';
+import api, { authAPI } from '../../configs391/API391';
 import Cookies from 'react-cookies';
 import PaymentResult from './PaymentResult';
 import { MyUserContext } from '../../configs391/Context391';
@@ -13,16 +13,14 @@ const PaymentForm = () => {
     const user = useContext(MyUserContext);
 
     const { booking, payment } = location.state || {};
-    const bookingId = Number(localStorage.getItem('bookingId'));
-    const bookingConfirmationCode = localStorage.getItem('bookingConfirmationCode');
     const [formData, setFormData] = useState({
         order_type: 'topup',
         order_id: new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14),
         amount: payment || 10000,
-        order_desc: `Thanh toan don dat phong ${bookingConfirmationCode} thoi gian: ${new Date().toLocaleString()}`,
+        order_desc: `Thanh toan don dat phong ${booking.id} thoi gian: ${new Date().toLocaleString()}`,
         bank_code: '',
         language: 'vn',
-        booking_id: bookingId,
+        reservation: booking.id,
         user: user.id,
     });
 
@@ -39,7 +37,7 @@ const PaymentForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await authAPI.post('/hotel/payment/create_payment/', formData, {
+            const response = await api.post('/payments/create_payment/', formData, {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken
@@ -47,7 +45,7 @@ const PaymentForm = () => {
             });
 
             if (response) {
-                window.location.href = response.data;
+                window.open(response.data.payment_url,'_blank');
             } else {
                 console.error('Payment URL is not available in response.');
             }
@@ -86,7 +84,7 @@ const PaymentForm = () => {
                         id="booking_id"
                         name="booking_id"
                         type="text"
-                        value={bookingConfirmationCode}
+                        value={booking.id}
                         onChange={handleChange}
                         readOnly
                     />

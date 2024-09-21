@@ -12,13 +12,10 @@ const Cart = () => {
   const [roomTypes, setRoomTypes] = useState([]);
 
   useEffect(() => {
-    // Lấy giỏ hàng từ localStorage khi trang được tải
     const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    console.log('Saved Cart:', savedCart);
     setCart(savedCart);
   }, []);
 
-  
   useEffect(() => {
     const fetchRoomTypes = async () => {
       try {
@@ -32,21 +29,16 @@ const Cart = () => {
     fetchRoomTypes();
   }, []);
 
-
   const handleRemoveFromCart = (roomId) => {
-    // Show confirmation popup
     const confirmRemoval = window.confirm('Are you sure you want to remove this item from your cart?');
   
     if (confirmRemoval) {
-      // If confirmed, remove the room from the cart
       const updatedCart = cart.filter(room => room.id !== roomId);
       setCart(updatedCart);
-  
-      // Update cart in localStorage
       localStorage.setItem('cart', JSON.stringify(updatedCart));
     }
   };
-  
+
   const getRoomPrice = (room) => {
     const roomType = roomTypes.find(rt => rt.id === room.room_type);
     return roomType ? `${roomType.price} VND` : 'Price not available';
@@ -92,7 +84,7 @@ const Cart = () => {
                     <h4>{getNameRoomType(room)}</h4>
                   </div>
                   <div css={headerStyle}>
-                  <h4>{getQuantity(room)}</h4>
+                    <h4>{getQuantity(room)}</h4>
                   </div>
                   <div css={iconStyle} onClick={() => handleRemoveFromCart(room.id)}>
                     <MdDelete />
@@ -150,7 +142,6 @@ const headerStyle = css`
   justify-content: space-between;
   gap: 0.5rem;
 
-
   h4 {
     font-size: 1rem;
     font-weight: 600;
@@ -181,7 +172,6 @@ const bookingButtonStyle = (isAvailable) => css`
   cursor: ${isAvailable ? 'pointer' : 'not-allowed'};
   transition: background-size 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
 
-  // Initial shadow and elevation
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
   &:hover {
@@ -200,8 +190,10 @@ const bookingButtonStyle = (isAvailable) => css`
 
 const gridStyle = css`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* Adjust to have exactly 3 sections */
   gap: 1.5rem;
-`;
+  justify-items: center;
+`;  
+
 
 export default Cart;

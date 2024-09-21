@@ -130,7 +130,7 @@ const navStyle = css`
   margin: 0 auto;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 10px;
-  transition: top 1s ease, width 0.5s ease, border-radius 0.3s ease;;
+  transition: top 0.5s ease, width 0.5s ease, border-radius 0.3s ease;;
 `;
 
 const scrolledNavStyle = css`
@@ -140,7 +140,7 @@ const scrolledNavStyle = css`
   max-width: 100%;
   border-radius: 9px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-  transition: top 1s ease, width 0.5s ease, border-radius 0.3s ease;
+  transition: top 0.5s ease, width 0.5s ease, border-radius 0.3s ease;
 `;
 
 const navContentStyle = css`

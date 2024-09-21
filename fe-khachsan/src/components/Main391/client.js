@@ -5,17 +5,36 @@ import { css } from '@emotion/react';
 
 const Client = () => (
   <section css={clientSectionStyle}>
+    <h2 className="section-header reveal" css={{ textAlign: 'center'}}>
+        KHÁCH HÀNG CỦA CHÚNG TÔI NÓI GÌ
+    </h2>
     <div className="section-container client-container">
-      <h2 className="section-header reveal" css={{ textAlign: 'center'}}>
-        What our client say
-      </h2>
       <div css={clientGridStyle}>
         <div className="client-card reveal">
-          <img src="img/client01.jpg" alt="client" />
+          <img src="https://res.cloudinary.com/vantan/image/upload/v1726841371/istockphoto-1386479313-612x612_scebcr.jpg" alt="client" />
           <p>
             Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi aliquam quisquam asperiores ad recusandae architecto ratione
           </p>
         </div>
+        <div className="client-card reveal">
+          <img src="https://res.cloudinary.com/vantan/image/upload/v1726841365/istockphoto-1311084168-612x612_mlqozn.jpg" alt="client" />
+          <p>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi aliquam quisquam asperiores ad recusandae architecto ratione
+          </p>
+        </div>
+        <div className="client-card reveal">
+          <img src="https://res.cloudinary.com/vantan/image/upload/v1726841360/istockphoto-1129638598-612x612_jt1wor.jpg" alt="client" />
+          <p>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi aliquam quisquam asperiores ad recusandae architecto ratione
+          </p>
+        </div>
+        <div className="client-card reveal">
+          <img src="https://res.cloudinary.com/vantan/image/upload/v1726841536/istockphoto-1351285381-612x612_uvuqkj.jpg" alt="client" />
+          <p>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Commodi aliquam quisquam asperiores ad recusandae architecto ratione
+          </p>
+        </div>
+        
         {/* Add more client-card components here */}
       </div>
     </div>
@@ -24,7 +43,7 @@ const Client = () => (
 
 const clientSectionStyle = css`
   background-color: #f0f0f0; /* Thay đổi màu nền của section */
-  padding: 2rem 0; /* Thêm padding trên và dưới */
+  padding: 5rem 0; /* Thêm padding trên và dưới */
 `;
 
 const clientGridStyle = css`

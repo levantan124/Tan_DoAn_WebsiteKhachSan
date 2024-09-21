@@ -19,6 +19,7 @@ const ExportBill391 = () => {
   const [roomCost, setRoomCost] = useState(0);
   const [totalDays, setTotalDays] = useState(0);
   const navigate = useNavigate();
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -112,6 +113,27 @@ const ExportBill391 = () => {
     window.print();
   };
 
+  const handlePayment = async () => {
+    setPaymentLoading(true);
+    try {
+      const response = await authAPI().post('/create_payment/', {
+        order_type: 'payment',
+        order_id: reservation.id,
+        amount: totalAmount,
+        order_desc: `Thanh toán hóa đơn #${reservation.id}`,
+        bank_code: '',
+        language: 'vn',
+      });
+
+      const paymentUrl = response.data[0];
+      window.location.href = paymentUrl;
+    } catch (error) {
+      setError('Error initiating payment');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   if (loading) return <div css={loadingStyle}>Loading...</div>;
   if (error) return <div css={errorStyle}>{error}</div>;
 
@@ -173,6 +195,9 @@ const ExportBill391 = () => {
           <div css={actionContainerStyle}>
             <button css={exportButtonStyle} onClick={handleExportBill}>Xuất Hóa Đơn</button>
             <button css={printButtonStyle} onClick={handlePrintBill}>In Hóa Đơn</button>
+            <button css={paymentButtonStyle} onClick={handlePayment} disabled={paymentLoading}>
+              {paymentLoading ? 'Đang xử lý...' : 'Thanh toán qua VNPAY'}
+            </button>
           </div>
         </div>
       )}
@@ -296,5 +321,30 @@ const errorStyle = css`
   color: red;
   margin-top: 20px;
 `;
+
+const paymentButtonStyle = css`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  space-between: 10px;
+  margin-left: 10px;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+`;
+
 
 export default ExportBill391;

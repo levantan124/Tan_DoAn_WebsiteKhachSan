@@ -23,6 +23,9 @@ import ReservationList391 from "./components/Staff391/ReservationList391"
 import AddService391 from "./components/Staff391/AddService391"
 import BillList391 from "./components/Staff391/BillList391"
 import ExportBill391 from "./components/Staff391/ExportBill391"
+import PaymentForm391 from "./components/Staff391/PaymentForm";
+import PaymentResult391 from "./components/Staff391/PaymentResult";
+import Pay from "./components/Staff391/Pay";
 
 //ADMIN
 import Admin391 from "./components/Admin391/admin"
@@ -57,6 +60,9 @@ const App = () => {
             <Route path="/add-services/:id" element={<AddService391 />} />
             <Route path="/bill-list" element={<BillList391 />} />
             <Route path="/bill/:id" element={<ExportBill391 />} />
+            <Route path="/payment" element={<PaymentForm391 />} />
+            {/* <Route path="/bill/:id" element={<ExportBill391 />} /> */}
+            <Route path="/pay" element={<Pay />} />
             
             {/* ADMIN */}
             <Route path="/admin" element={<Admin391 />}>

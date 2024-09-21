@@ -7,14 +7,13 @@ const Footer = () => (
       <div css={footerColStyle}>
         <h3>Phương châm</h3>
         <p>
-        Tại khách sạn của chúng tôi, sự hài lòng của khách hàng là ưu tiên hàng đầu. 
-        Luôn sẵn sàng hỗ trợ nhanh chóng, 
-        đảm bảo mọi nhu cầu của quý khách được đáp ứng.
+        Chăm sóc tận tình
         </p>
         <p>
-        Dù chọn phòng cao cấp hay tiêu chuẩn, 
-        quý khách đều được tận hưởng tiện nghi sang trọng và dịch vụ đa dạng, 
-        giúp kỳ nghỉ thêm trọn vẹn và thoải mái.
+        Sự tiện nghi đang dạng dịch vụ.
+        </p>
+        <p>
+        Sự hài lòng của khách hàng là ưu tiên hàng đầu. 
         </p>
       </div>
       <div css={footerColStyle}>
@@ -55,6 +54,7 @@ const footerStyle = css`
   background: var(--extra-light);
   background-color: #f0f0f0;
 `;
+
 
 const footerContainerStyle = css`
   display: grid;

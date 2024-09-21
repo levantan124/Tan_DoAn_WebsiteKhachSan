@@ -3,7 +3,6 @@ import { css } from '@emotion/react';
 import { useState, useEffect, useContext } from 'react';
 import { authAPI } from '../../configs391/API391';
 import { MyUserContext } from "../../configs391/Context391";
-import { Link } from 'react-router-dom';
 import Modal from 'react-modal';
 import { FaStar } from 'react-icons/fa';
 
@@ -20,7 +19,6 @@ const BookingHistory = () => {
     const fetchReservations = async () => {
       try {
         const response = await authAPI().get('/reservations/get-reservation-guest/');
-        console.log(response)
         setReservations(response.data);
       } catch (error) {
         console.error("Failed to fetch reservations:", error);
@@ -49,14 +47,12 @@ const BookingHistory = () => {
   const handleSubmitFeedback = async (e) => {
     e.preventDefault();
     try {
-      // Post feedback to server
       await authAPI().post(`/feedbacks/`, {
         reservation: selectedReservation.id,
         guest: user.id,
         rating: rating,
         comment: feedback,
       });
-      // Close modal after submission
       closeModal();
     } catch (error) {
       console.error("Failed to submit feedback:", error);
@@ -66,7 +62,7 @@ const BookingHistory = () => {
   return (
     <>
       <section css={sectionContainerStyle}>
-        <h2>Lịch sử đặt phòng</h2>
+        <h2 css={headerStyle}>Lịch sử đặt phòng</h2>
         <table css={tableStyle}>
           <thead>
             <tr>
@@ -104,14 +100,13 @@ const BookingHistory = () => {
         style={modalStyles}
         contentLabel="Feedback Modal"
       >
-        <h2>Đánh giá đặt phòng</h2>
+        <h2 css={modalHeaderStyle}>Đánh giá đặt phòng</h2>
         <form onSubmit={handleSubmitFeedback}>
           <div css={ratingContainerStyle}>
             {[1, 2, 3, 4, 5].map((star) => (
               <FaStar
                 key={star}
                 size={24}
-
                 color={star <= rating ? '#ffa500' : '#e4e5e9'}
                 onClick={() => handleRating(star)}
                 css={starStyle}
@@ -127,8 +122,10 @@ const BookingHistory = () => {
               required
             />
           </div>
-          <button type="submit" css={submitButtonStyle}>Gửi</button>
-          <button type="button" onClick={closeModal} css={cancelButtonStyle}>Hủy</button>
+          <div css={buttonContainerStyle}>
+            <button type="submit" css={submitButtonStyle}>Gửi</button>
+            <button type="button" onClick={closeModal} css={cancelButtonStyle}>Hủy</button>
+          </div>
         </form>
       </Modal>
     </>
@@ -144,6 +141,12 @@ const sectionContainerStyle = css`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
+const headerStyle = css`
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+`;
+
 const tableStyle = css`
   width: 100%;
   border-collapse: collapse;
@@ -157,6 +160,11 @@ const tableStyle = css`
 
   th {
     background-color: #f4f4f4;
+    color: #333;
+  }
+
+  tr:hover {
+    background-color: #f1f1f1;
   }
 `;
 
@@ -169,10 +177,11 @@ const detailsButtonStyle = css`
   text-decoration: none;
   font-size: 0.875rem;
   text-align: center;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: #e5533d;
+    transform: scale(1.05);
   }
 `;
 
@@ -188,10 +197,16 @@ const modalStyles = {
     width: '90%',
     maxWidth: '500px',
     backgroundColor: '#fff',
-    boxShadow: '0 10px 25px rgba(169 0 0 / 50%)',
+    boxShadow: '0 10px 25px rgba(169, 0, 0, 0.5)',
     alignItems: 'center',
   },
 };
+
+const modalHeaderStyle = css`
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+`;
 
 const ratingContainerStyle = css`
   display: flex;
@@ -210,7 +225,7 @@ const starStyle = css`
 `;
 
 const feedbackContainerStyle = css`
-   width: 100%;
+  width: 100%;
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
@@ -225,6 +240,11 @@ const textareaStyle = css`
   font-size: 15px;
   resize: none;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+`;
+
+const buttonContainerStyle = css`
+  display: flex;
+  justify-content: space-between;
 `;
 
 const submitButtonStyle = css`
@@ -257,6 +277,5 @@ const cancelButtonStyle = css`
     background-color: #c82333;
   }
 `;
-
 
 export default BookingHistory;

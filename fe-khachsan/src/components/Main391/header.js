@@ -1,39 +1,39 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => (
   <section css={headerContainerStyle}>
     <div css={headerImageContainerStyle}>
       <div css={headerContentStyle}>
-        <h1 className="reveal">Chào mừng đến với khách sạn của chúng tôi.</h1>
-        <p className="reveal">
-        Trải nghiệm dịch vụ đẳng cấp, đặt phòng ngay hôm nay!
-        </p>
+        <h1 className="reveal fade-in" css={fadeInAnimation}>Chào mừng đến với khách sạn của chúng tôi.</h1>
+        <p className="reveal fade-in" css={fadeInAnimation}>Trải nghiệm dịch vụ đẳng cấp, đặt phòng ngay hôm nay!</p>
       </div>
       <div css={bookingWrapperStyle}>
         <div css={bookingContainerStyle}>
-          <div className="form-group reveal" css={formGroupStyle}>
+          <div className="form-group reveal fade-in" css={[formGroupStyle, fadeInAnimation]}>
             <div className="input-group">
               <input type="text" />
               <label>Phòng</label>
             </div>
             <p>Bạn muốn tìm loại phòng nào?</p>
           </div>
-          <div className="form-group reveal" css={formGroupStyle}>
+          <div className="form-group reveal fade-in" css={[formGroupStyle, fadeInAnimation]}>
             <div className="input-group">
               <input type="text" />
               <label>Check In</label>
             </div>
             <p>Add date</p>
           </div>
-          <div className="form-group reveal" css={formGroupStyle}>
+          <div className="form-group reveal fade-in" css={[formGroupStyle, fadeInAnimation]}>
             <div className="input-group">
               <input type="text" />
               <label>Check Out</label>
             </div>
             <p>Add date</p>
           </div>
-          <div className="form-group reveal" css={formGroupStyle}>
+          <div className="form-group reveal fade-in" css={[formGroupStyle, fadeInAnimation]}>
             <div className="input-group">
               <input type="text" />
               <label>Người</label>
@@ -42,7 +42,7 @@ const Header = () => (
           </div>
         </div>
         <button className="btn reveal" css={buttonStyle}>
-          <i className="fa-solid fa-magnifying-glass"></i>
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
       </div>
     </div>
@@ -50,7 +50,7 @@ const Header = () => (
 );
 
 const headerContainerStyle = css`
-  padding-top: 8rem;
+  padding-top: 2.5rem;
   padding-left: 10rem;
   padding-right: 10rem;
 `;
@@ -149,9 +149,31 @@ const buttonStyle = css`
   background: var(--primary-color);
   border-radius: 50%;
   cursor: pointer;
-  transition: 0.5s;
+  transition: background 0.5s, transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     background: var(--primary-color-dark);
+    transform: scale(1.1); /* Tăng kích thước khi hover */
+  }
+`;
+
+// Thêm animation CSS
+const fadeInAnimation = css`
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  &.fade-in {
+    animation: fadeIn 1.5s ease forwards;
   }
 `;
 

@@ -239,7 +239,7 @@ const cartIconStyle = css`
   transition: color 0.3s ease;
 
   &:hover {
-    color: #ff6347;
+    color: #ff6347; 
   }
 `;
 

@@ -22,6 +22,7 @@ export const endpoints = {
     'r': '/rooms/',
     'rp': (id) => `/room-images/${id}/`,
     'login-google': '/accounts/google-login/',
+    'sale': '/promotions/',
 
     
     'signup': '/accounts/',

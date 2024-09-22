@@ -1,15 +1,49 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { authAPI, endpoints } from '../../configs391/API391';
 
 const Sale = () => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [promotions, setPromotions] = useState([]);
+  const [flippedBubbleIndex, setFlippedBubbleIndex] = useState(null);
+
+  const handleCopyCode = (code) => {
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        alert(`Copied to clipboard: ${code}`);
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+  };
 
   const handleClose = () => {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const response = await authAPI().get(endpoints.sale);
+        if (response.data) {
+          setPromotions(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch promotions:", error);
+      }
+    };
+
+    fetchPromotions();
+
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible || promotions.length === 0) return null;
 
   return (
     <div css={styles.container}>
@@ -19,65 +53,75 @@ const Sale = () => {
         </button>
         <div css={styles.imageContainer}>
           <img
-            src="https://tools-api.webcrumbs.org/image-placeholder/900/300/restaurant/1"
+            src="https://res.cloudinary.com/vantan/image/upload/v1726747588/r1ck6fkj7ddwajpylmkw.jpg"
             css={styles.mainImage}
-            alt="Vietnamese Cuisine Promotion"
+            alt="Promotion"
           />
           <div css={styles.logoContainer}>
             <p css={styles.logoTextBold}>Tan_Hotel</p>
-            <p css={styles.logoTextSmall}>Vietnamese Cuisine</p>
+            <p css={styles.logoTextSmall}>Cung cấp nơi lưu trú tốt nhất Việt Nam</p>
           </div>
 
           <div css={styles.offerContainer}>
-            <p css={styles.offerTitle}>ƯU ĐÃI<p css={styles.offerSubtitle}>lên đến</p>
-            20%</p>
+            <p css={styles.offerTitle}>ƯU ĐÃI lên đến</p>
           </div>
 
-          <div css={styles.discountContainerLarge}>
-            <p css={styles.discountText}>-15%</p>
-            <p css={styles.discountDetails}>NHÓM TRÊN 20 KHÁCH</p>
+          <div css={styles.discountRow}>
+            {promotions.map((promotion, index) => {
+            // Tính kích thước dựa trên discount
+            const bubbleSize = promotion.discount < 20 ? styles.smallBubble : promotion.discount < 50 ? styles.mediumBubble : styles.largeBubble;
+            return (
+              <div
+                key={promotion.id}
+                css={[
+                  styles.discountContainer,
+                  bubbleSize,
+                  {
+                    transform: flippedBubbleIndex === index ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  },
+                ]}
+                onClick={() => setFlippedBubbleIndex(flippedBubbleIndex === index ? null : index)}
+              >
+                <div css={styles.frontSide}>
+                  <p css={styles.discountText}>{`-${promotion.discount}%`}</p>
+                  <p css={styles.discountDetails}>{`${promotion.title} - ${promotion.description}`}</p>
+                </div>
+                <div css={styles.backSide} onClick={() => handleCopyCode(promotion.code)}>         
+                  <p css={styles.discountText}>{promotion.code}</p>
+                </div>
+              </div>
+            );
+           })}
           </div>
 
-          <div css={styles.discountContainerMedium}>
-            <p css={styles.discountText}>-10%</p>
-            <p css={styles.discountDetails}>NHÓM TỪ 10-19 KHÁCH</p>
-          </div>
-
-          <div css={styles.discountContainerSmall}>
-            <p css={styles.discountTextSmall}>-5%</p>
-            <p css={styles.discountDetailsSmall}>
-              GIẢM THÊM CHO THẺ VÀNG &amp; BẠC
-            </p>
-          </div>
 
           <div css={styles.freeContainer}>
             <p css={styles.freeText}>MIỄN PHÍ</p>
-            <p css={styles.freeDetails}>Phụ thu rượu mang từ ngoài</p>
-            <p css={styles.freeDetails}>vào (Tối đa 5 chai)</p>
+            <p css={styles.freeDetails}>Phụ thu rượu mang từ ngoài vào (Tối đa 5 chai)</p>
             <p css={styles.freeDetails}>NHÓM TRÊN 10 KHÁCH</p>
           </div>
         </div>
 
         <div css={styles.foodImagesContainer}>
           <img
-            src="https://tools-api.webcrumbs.org/image-placeholder/200/200/pho/2"
+            src="https://res.cloudinary.com/vantan/image/upload/v1726747588/r1ck6fkj7ddwajpylmkw.jpg"
             css={styles.foodImage}
-            alt="Food dish 1"
+            alt="Hotel dish 1"
           />
           <img
-            src="https://tools-api.webcrumbs.org/image-placeholder/200/200/pho/3"
+            src="https://res.cloudinary.com/vantan/image/upload/v1726747548/xzu9zallqe23dkl67kt0.jpg"
             css={styles.foodImage}
-            alt="Food dish 2"
+            alt="Hotel dish 2"
           />
           <img
-            src="https://tools-api.webcrumbs.org/image-placeholder/200/200/pho/4"
+            src="https://res.cloudinary.com/vantan/image/upload/v1726747587/is9h9ad1ilrsfq8btyjh.jpg"
             css={styles.foodImage}
-            alt="Food dish 3"
+            alt="Hotel dish 3"
           />
           <img
-            src="https://tools-api.webcrumbs.org/image-placeholder/200/200/pho/5"
+            src="https://res.cloudinary.com/vantan/image/upload/v1726747547/lul7nlsxb1r7rdvivtsh.jpg"
             css={styles.foodImage}
-            alt="Food dish 4"
+            alt="Hotel dish 4"
           />
         </div>
       </div>
@@ -95,14 +139,16 @@ const styles = {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000; /* Đảm bảo popup nằm trên các thành phần khác */
+    z-index: 1000;
+    backdrop-filter: blur(10px);
   `,
   card: css`
     width: 900px;
     border-radius: 24px;
     background-color: #f9fafb;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    position: relative; /* Để nút đóng nằm trong phạm vi card */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2000;
   `,
   closeButton: css`
     position: absolute;
@@ -119,7 +165,7 @@ const styles = {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Đảm bảo nút đóng nằm trên các thành phần khác */
+    z-index: 2000;
     &:hover {
       color: #ff0000;
     }
@@ -127,7 +173,7 @@ const styles = {
   imageContainer: css`
     position: relative;
     width: 100%;
-    height: 300px;
+    height: 280px;
   `,
   mainImage: css`
     object-fit: cover;
@@ -140,94 +186,95 @@ const styles = {
     top: 16px;
     left: 16px;
   `,
-  logo: css`
-    object-fit: cover;
-    width: 50px;
-    height: 50px;
-  `,
   logoTextBold: css`
-    font-weight: bold;
+    font-weight: 900;
+    font-size: 25px;
+    color: white;
   `,
   logoTextSmall: css`
-    font-size: 12px;
+    font-size: 15px;
+    color: white;
+    font-weight: bold;
   `,
   offerContainer: css`
     position: absolute;
-    top: 3.5rem;
+    top: 7rem;
     left: 10px;
     color: white;
     text-align: left;
   `,
   offerTitle: css`
-    font-size: 48px;
+    margin-top: 5rem;
+    font-size: 30px;
     font-weight: bold;
     line-height: 16px;
+    text-decoration: underline;
   `,
-  offerSubtitle: css`
-    font-size: 30px;
-    font-weight: 600;
-  `,
-  discountContainerLarge: css`
+  discountRow: css`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
     position: absolute;
-    top: 40px;
-    right: 25rem;
+    top: 14rem;
+    left: 10px;
+  `,
+  discountContainer: css`
+    border-radius: 50%;
+    padding: 8px;
+    color: white;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+    cursor: pointer;
+    perspective: 1000px;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    animation: sparkle 1.5s infinite;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  `,
+  largeBubble: css`
     width: 120px;
     height: 120px;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-    border-radius: 50%;
-    padding: 8px;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   `,
-  discountContainerMedium: css`
-    position: absolute;
-    top: 9rem;
-    right: 8rem;
-    width: 100px;
-    height: 100px;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-    border-radius: 50%;
-    padding: 8px;
-    color: white;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  mediumBubble: css`
+    width: 130px;
+    height: 130px;
   `,
-  discountContainerSmall: css`
-    position: absolute;
-    top: 40px;
-    right: 5rem;
+  smallBubble: css`
     width: 80px;
     height: 80px;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-    border-radius: 50%;
-    padding: 8px;
-    color: white;
-    text-align: center;
+  `,
+  frontSide: css`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
   `,
-  discountText: css`
-    font-size: 30px;
-    font-weight: bold;
+  backSide: css`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ff6347;
+    background: #333;
+    border-radius: 50%;
   `,
-  discountTextSmall: css`
-    font-size: 20px;
+  discountText: css`
+    font-size: 27px;
     font-weight: bold;
   `,
   discountDetails: css`
     font-size: 12px;
-  `,
-  discountDetailsSmall: css`
-    font-size: 10px;
   `,
   freeContainer: css`
     position: absolute;
@@ -250,11 +297,12 @@ const styles = {
     font-weight: bold;
   `,
   freeDetails: css`
-    font-size: 11px;
+    font-size: 14px;
+    font-weight: 300;
   `,
   foodImagesContainer: css`
     display: flex;
-    gap: 8px;
+    gap: 33px;
     margin-top: 16px;
     overflow-x: auto;
   `,
@@ -263,6 +311,11 @@ const styles = {
     height: 200px;
     border-radius: 12px;
   `,
+  '@keyframes sparkle': {
+    '0%': { transform: 'scale(1)' },
+    '50%': { transform: 'scale(1.1)', boxShadow: '0 0 25px rgba(255, 255, 255, 0.8)' },
+    '100%': { transform: 'scale(1)' },
+  },
 };
 
 export default Sale;

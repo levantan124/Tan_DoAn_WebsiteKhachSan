@@ -9,6 +9,8 @@ import Popular from "../Main391/popular";
 import Client from "../Main391/client";
 import Reward from "../Main391/reward";
 import Footer from "../Footer391/footer";
+import Sale from "../Main391/sale";
+import ChatMess from "../Main391/chatmess";
 import { motion } from 'framer-motion';
 
 const Home = () => {
@@ -96,6 +98,8 @@ const Home = () => {
                 >
                     <Header />
                 </motion.div>
+                <Sale />
+                <ChatMess />
                 <motion.div 
                     className="fade-in"
                     data-component="popular"

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css} from '@emotion/react';
+import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
 import { authAPI } from '../../configs391/API391';
 
@@ -7,6 +7,12 @@ const BillList = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+ // Function to calculate the total amount
+const calculateTotalAmount = (bills) => {
+  return bills.reduce((total, bill) => total + Math.floor(Number(bill.total_amount)), 0);
+};
+
 
   useEffect(() => {
     const fetchBills = async () => {
@@ -26,67 +32,108 @@ const BillList = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  // Calculate the total amount of all bills
+  const totalAmount = calculateTotalAmount(bills);
+
   return (
-    <div css={styles}>
-      <h1>Bill List</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Created Date</th>
-            <th>Updated Date</th>
-            <th>Total Amount</th>
-            <th>Active</th>
-            <th>Reservation ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bills.map((bill) => (
-            <tr key={bill.id}>
-              <td>{bill.id}</td>
-              <td>{new Date(bill.created_date).toLocaleString()}</td>
-              <td>{new Date(bill.updated_date).toLocaleString()}</td>
-              <td>{bill.total_amount}</td>
-              <td>{bill.active ? 'Yes' : 'No'}</td>
-              <td>{bill.reservation}</td>
+    <div css={containerStyle}>
+      <h1 css={headerStyle}>Bill List</h1>
+      
+      {/* Display the total amount at the top of the page */}
+      <div css={totalAmountStyle}>
+        Tổng tiền của các phiếu đặt phòng: <strong>{totalAmount.toLocaleString()} VND</strong>
+      </div>
+
+      <div css={tableWrapperStyle}>
+        <table css={tableStyle}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ngày tạo</th>
+              <th>Ngày cập nhật</th>
+              <th>Thành tiền</th>
+              <th>Phiếu đặt phòng</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {bills.map((bill) => (
+              <tr key={bill.id}>
+                <td>{bill.id}</td>
+                <td>{new Date(bill.created_date).toLocaleString()}</td>
+                <td>{new Date(bill.updated_date).toLocaleString()}</td>
+                <td>{bill.total_amount.toLocaleString()} VND</td>
+                <td>{bill.reservation}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-const styles = css`
-  padding: 120px;
-  background-color: #f4f4f4;
+// Styles
+const containerStyle = css`
+  padding: 4rem;
+  background-color: #f9f9fb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
-  h1 {
-    margin-bottom: 20px;
+const headerStyle = css`
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+`;
+
+const totalAmountStyle = css`
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  color: #333;
+  text-align: center;
+`;
+
+const tableWrapperStyle = css`
+  width: 100%;
+  max-width: 1000px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+`;
+
+const tableStyle = css`
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 1rem;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #ddd;
+  }
+
+  td {
+    border-bottom: 1px solid #eee;
+    font-size: 1rem;
     color: #333;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  tr:hover {
+    background-color: #f7f7f7;
+  }
 
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    tr:hover {
-      background-color: #ddd;
-    }
+  tr:nth-child(even) {
+    background-color: #fafafa;
   }
 `;
 

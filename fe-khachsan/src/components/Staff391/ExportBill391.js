@@ -95,6 +95,7 @@ const ExportBill391 = () => {
 
   const handleExportBill = async () => {
     try {
+      // Xuất hóa đơn
       await authAPI().post('/bills/', {
         created_date: new Date().toISOString(),
         updated_date: new Date().toISOString(),
@@ -102,7 +103,13 @@ const ExportBill391 = () => {
         reservation: id,
       });
 
-      alert('Hóa đơn đã được xuất thành công!');
+      // Đặt trạng thái phòng thành "trống"
+      const roomIds = reservation.room; // Lấy danh sách ID phòng từ đặt phòng
+      await Promise.all(roomIds.map(roomId => 
+        authAPI().post(`/rooms/${roomId}/set-empty/`)
+      ));
+
+      alert('Hóa đơn đã được xuất thành công và phòng đã được đặt thành trống!');
       navigate(`/bill/${id}`);
     } catch (error) {
       setError('Error exporting bill');
@@ -112,6 +119,7 @@ const ExportBill391 = () => {
   const handlePrintBill = () => {
     window.print();
   };
+  
 
   const handlePayment = async () => {
     setPaymentLoading(true);
@@ -138,8 +146,8 @@ const ExportBill391 = () => {
   if (error) return <div css={errorStyle}>{error}</div>;
 
   return (
-    <div css={containerStyle}>
-      <h1 css={titleStyle}>Xuất Hóa Đơn</h1>
+    <div css={[containerStyle, printStyle]} id="printable">
+      <h1 css={titleStyle}>HÓA ĐƠN</h1>
       {reservation && guest && (
         <div css={billContainerStyle}>
           <h2 css={sectionTitleStyle}>Thông tin hóa đơn</h2>
@@ -192,18 +200,43 @@ const ExportBill391 = () => {
             </tbody>
           </table>
 
-          <div css={actionContainerStyle}>
+          <div css={actionContainerStyle} className="actionContainer">
             <button css={exportButtonStyle} onClick={handleExportBill}>Xuất Hóa Đơn</button>
+            <button css={paymentButtonStyle} onClick={handlePayment}>Thanh Toán VNPAY</button>
             <button css={printButtonStyle} onClick={handlePrintBill}>In Hóa Đơn</button>
-            <button css={paymentButtonStyle} onClick={handlePayment} disabled={paymentLoading}>
-              {paymentLoading ? 'Đang xử lý...' : 'Thanh toán qua VNPAY'}
-            </button>
           </div>
         </div>
       )}
     </div>
   );
 };
+
+const printStyle = css`
+  @media print {
+    body > * {
+      display: none !important; /* Ẩn tất cả các phần tử */
+    }
+
+    #printable {
+      display: block !important; /* Chỉ hiện phần tử có ID là "printable" */
+      font-size: 0.8em; /* Giảm kích thước font để làm cho hóa đơn nhỏ hơn */
+      width: 100%; /* Đặt chiều rộng 100% để sử dụng tối đa không gian trang */
+    }
+
+    table {
+      font-size: 0.8em; /* Giảm kích thước font trong bảng */
+    }
+
+    th, td {
+      padding: 4px; /* Giảm khoảng cách padding trong bảng */
+    }
+
+    /* Ẩn các nút khi in */
+    .actionContainer {
+      display: none !important; /* Ẩn container chứa các nút */
+    }
+  }
+`;
 
 const containerStyle = css`
   width: 600px;
@@ -222,25 +255,20 @@ const titleStyle = css`
   text-align: center;
   font-size: 24px;
   color: #fa5b30;
-  background: linear-gradient(to right, #fa5b30, #3b82f6);
-  background-clip: text;
+  background: linear-gradient(to right, #fa5b30, #3e8e41);
   -webkit-background-clip: text;
-  color: transparent;
-  font-family: 'Lato', sans-serif;
+  -webkit-text-fill-color: transparent;
 `;
 
 const sectionTitleStyle = css`
   font-size: 20px;
-  color: #2a9d8f;
   margin-bottom: 10px;
-  font-weight: bold;
+  color: #333;
 `;
 
 const infoStyle = css`
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
   margin-bottom: 20px;
+  color: #555;
 `;
 
 const tableStyle = css`
@@ -249,102 +277,75 @@ const tableStyle = css`
   margin-bottom: 20px;
   
   th, td {
-    border: 1px solid #ddd;
     padding: 8px;
-    text-align: right;
+    border: 1px solid #ccc;
+    text-align: left;
   }
 
   th {
-    background: #2a9d8f;
-    color: white;
-  }
-
-  td {
-    background: #f9f9f9;
+    background-color: #f4f4f4;
   }
 `;
 
 const totalRowStyle = css`
   font-weight: bold;
-  background: #eaeaea;
 `;
 
 const actionContainerStyle = css`
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
   margin-top: 20px;
 `;
 
 const exportButtonStyle = css`
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #fff;
+  padding: 10px 15px;
   background-color: #fa5b30;
+  color: #fff;
   border: none;
-  border-radius: 24px;
+  border-radius: 4px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  space-between: 10px;
 
   &:hover {
-    background-color: #e04d27;
+    background-color: #e94e24;
   }
 `;
 
 const printButtonStyle = css`
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 10px 15px;
+  background-color: #4caf50;
   color: #fff;
-  background-color: #4CAF50;
   border: none;
-  border-radius: 24px;
+  border-radius: 4px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  space-between: 10px;
-  margin-left: 10px;
 
   &:hover {
     background-color: #45a049;
   }
 `;
 
+const paymentButtonStyle = css`
+  padding: 10px 15px;
+  background-color: #2196F3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0b7dda;
+  }
+`;
+
 const loadingStyle = css`
   text-align: center;
-  margin-top: 20px;
+  font-size: 20px;
+  margin-top: 50px;
 `;
 
 const errorStyle = css`
-  text-align: center;
   color: red;
-  margin-top: 20px;
+  text-align: center;
+  margin-top: 50px;
 `;
-
-const paymentButtonStyle = css`
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  space-between: 10px;
-  margin-left: 10px;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-
-  &:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-`;
-
 
 export default ExportBill391;

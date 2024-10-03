@@ -19,6 +19,7 @@ import Sale from "./components/Main391/sale";
 import Home391 from "./components/Home391/home";
 
 // STAFF
+import Staff391 from "./components/Staff391/Staff"
 import ServiceList391 from "./components/Staff391/ServiceList391"
 import ReservationList391 from "./components/Staff391/ReservationList391"
 import AddService391 from "./components/Staff391/AddService391"
@@ -27,6 +28,7 @@ import ExportBill391 from "./components/Staff391/ExportBill391"
 import PaymentForm391 from "./components/Staff391/PaymentForm";
 import PaymentResult391 from "./components/Staff391/PaymentResult";
 import Pay from "./components/Staff391/Pay";
+import ListEmptyRoom391 from "./components/Staff391/ListEmptyRoom";
 
 //ADMIN
 import Admin391 from "./components/Admin391/admin"
@@ -57,15 +59,27 @@ const App = () => {
             <Route path="/sale" element={<Sale />} />
     
             {/* STAFF */}
+            <Route path="/staff" element={<Staff391 />} />
             <Route path="/services-list" element={<ServiceList391 />} />
             <Route path="/reservations-list" element={<ReservationList391 />} />
+            <Route path="/list-empty-room" element={<ListEmptyRoom391 />} />
+            <Route path="/bill/:id" element={<ExportBill391 />} />
             <Route path="/add-services/:id" element={<AddService391 />} />
             <Route path="/bill-list" element={<BillList391 />} />
-            <Route path="/bill/:id" element={<ExportBill391 />} />
             <Route path="/payment" element={<PaymentForm391 />} />
-            {/* <Route path="/bill/:id" element={<ExportBill391 />} /> */}
+            <Route path="/bill/:id" element={<ExportBill391 />} />
             <Route path="/pay" element={<Pay />} />
-            
+           
+{/*             
+            <Route path="/staff" element={<Staff391 />}>
+              <Route path="/services-list" element={<ServiceList391 />} />
+              <Route path="/reservations-list" element={<ReservationList391 />} />
+              <Route path="/list-empty-room" element={<ListEmptyRoom391 />} />
+              <Route path="/bill-list" element={<BillList391 />} />
+            </Route>
+             */}
+
+             
             {/* ADMIN */}
             <Route path="/admin" element={<Admin391 />}>
               <Route path="existing-rooms" element={<ExistingRooms391 />} />

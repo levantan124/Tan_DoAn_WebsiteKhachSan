@@ -85,7 +85,7 @@ const NavBar = () => {
                       <>
                         <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
                         <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
-                        <li><Link to="/checkout-list" css={dropdownLinkStyle}>Trả phòng</Link></li>
+                        <li><Link to="/list-empty-room" css={dropdownLinkStyle}>Phòng trống</Link></li>
                         <li><Link to="/bill-list" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
                       </>
                     )}
@@ -130,7 +130,11 @@ const navStyle = css`
   margin: 0 auto;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 10px;
-  transition: top 0.5s ease, width 0.5s ease, border-radius 0.3s ease;;
+  transition: top 0.5s ease, width 0.5s ease, border-radius 0.3s ease;
+
+  @media print {
+    display: none; /* Ẩn navbar trong chế độ in */
+  }
 `;
 
 const scrolledNavStyle = css`
@@ -308,6 +312,10 @@ const scrollTopButtonStyle = css`
 
   &:focus {
     outline: none;
+  }
+
+  @media print {
+    display: none; /* Ẩn trong chế độ in */
   }
 `;
 

@@ -36,7 +36,6 @@ const ExistingAccounts = () => {
     }
   };
 
-  // Convert gender to Vietnamese label (1: Nam, 2: Nữ)
   const getGenderLabel = (sex) => {
     return sex === 1 ? 'Nam' : sex === 2 ? 'Nữ' : 'Khác';
   };

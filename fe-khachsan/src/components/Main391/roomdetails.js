@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { authAPI, endpoints } from '../../configs391/API391';
@@ -8,6 +8,7 @@ import cookie from "react-cookies";
 import Feedback391 from './feeback';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { MyUserContext } from '../../configs391/Context391';
 
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zrow3vckdxfp7f0k.jpg`;
@@ -22,6 +23,7 @@ const RoomDetails = () => {
   const [numberOfNights, setNumberOfNights] = useState(1);
   const [checkOutDate, setCheckOutDate] = useState('');
   const [averageRating, setAverageRating] = useState(0); // Added state for average rating
+  const user = useContext(MyUserContext);
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
@@ -116,7 +118,23 @@ const RoomDetails = () => {
           "Content-Type": "application/json"
         }
       });
+
+      const bookingData = {
+        guest: user.username,
+        room: [
+            {
+                roomType: room.nameRoomType,
+                status: 1,
+                active: true
+            }
+        ],
+        bookDate: new Date().toISOString(),
+        checkin: checkInDate,
+        checkout: checkOutDate
+    };
+
       const booking = response.data;
+      console.log(response.data)
       const payment = calculatePayment();
       if (response) {
         navigate("/payment", { state: { booking, payment } });
@@ -130,8 +148,8 @@ const RoomDetails = () => {
       });
 
       const emailData = {
-        subject: 'Booking Confirmation',
-        message: `Your booking is confirmed`,
+        subject: 'XÁC NHẬN ĐẶT PHÒNG',
+        message: `Xin Chào ${bookingData.guest},\n\nĐặt phòng của bạn đã được xác nhận!\n\nChi tiết đặt phòng\n- Tên khách hàng: ${bookingData.guest}\n- Ngày nhận phòng: ${bookingData.checkin}\n- Ngày trả phòng: ${bookingData.checkout}\n- Tên phòng: ${bookingData.room[0].name}\n\nChúng tôi mong được chào đón bạn vào ngày: ${bookingData.checkin}.\n\nCảm ơn bạn vì đã chọn chúng tôi!\n\nTrân trọng,\nTan_Hotel`,
         recipient: guestResponse.data.email,
       };
 

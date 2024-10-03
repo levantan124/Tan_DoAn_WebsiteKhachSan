@@ -99,7 +99,6 @@ const Home = () => {
                     <Header />
                 </motion.div>
                 <Sale />
-                <ChatMess />
                 <motion.div 
                     className="fade-in"
                     data-component="popular"

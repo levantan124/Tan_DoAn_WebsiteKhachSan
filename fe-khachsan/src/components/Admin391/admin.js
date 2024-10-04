@@ -22,7 +22,7 @@ function Admin() {
           { label: "QL Loại Phòng", path: "/admin/existing-roomtypes" },
           { label: "QL Dịch Vụ", path: "/admin/existing-services" },
           { label: "QL Tài khoản", path: "/admin/existing-accounts" },
-          { label: "QL Phiếu Đặt Phòng", path: "/admin/existing-reservations" }
+          { label: "QL Hóa Đơn", path: "/admin/existing-bills" }
         ].map((option) => (
           <button
             key={option.label}
@@ -65,7 +65,7 @@ const btnGroupStyle = css`
 const btnStyle = (isActive) => css`
   position: relative;
   padding: 0.75rem 1.5rem;
-  background-color: ${isActive ? "#e8e8e8" : "#70c489"};
+  background-color: ${isActive ? "#e8e8e8" : "#4caf50"};
   color: ${isActive ? "#1d1d29" : "#fff"};
   border: none;
   border-radius: 0.5rem;

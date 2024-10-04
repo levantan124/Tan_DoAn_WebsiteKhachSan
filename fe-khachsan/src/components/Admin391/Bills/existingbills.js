@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { useState, useEffect } from 'react';
-import { authAPI } from '../../configs391/API391';
+import { authAPI } from '../../../configs391/API391';
 
-const BillList = () => {
+const ExistingBills = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,7 @@ const BillList = () => {
   const formatPrice = (price) => {
     // Chuyển đổi giá thành số nguyên
     const number = Math.round(price); 
-    return number.toLocaleString('vi-VN') + ' VND'; // Định dạng theo kiểu Việt Nam
+    return number.toLocaleString('vi-VN') + ' VND';
   };
 
  // Function to calculate the total amount
@@ -149,4 +149,4 @@ const tableStyle = css`
   }
 `;
 
-export default BillList;
+export default ExistingBills;

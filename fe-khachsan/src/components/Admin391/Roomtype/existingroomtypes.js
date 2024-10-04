@@ -39,6 +39,13 @@ const ExistingRoomType = () => {
     setShowEditPopup(true);
   };
 
+  
+  const formatPrice = (price) => {
+    // Chuyển đổi giá thành số nguyên
+    const number = Math.round(price); 
+    return number.toLocaleString('vi-VN') + ' VND';
+  };
+
   const closeEditPopup = () => {
     setShowEditPopup(false);
     setCurrentRoomType(null);
@@ -87,7 +94,7 @@ const ExistingRoomType = () => {
             <tr key={roomType.id}>
               <td>{roomType.id}</td>
               <td>{roomType.name}</td>
-              <td>{roomType.price} VND</td>
+              <td>{formatPrice(roomType.price)}</td>
               <td>{roomType.quantity}</td>
               <td>
                 <button onClick={() => openEditPopup(roomType)} css={editButtonStyle}>Chỉnh sửa</button>
@@ -232,7 +239,7 @@ const editButtonStyle = css`
   display: inline-block;
   padding: 0.5rem 1rem;
   margin-right: 0.5rem;
-  background-color: #007bff;
+  background-color: #17a2b8;
   color: #fff;
   border-radius: 0.25rem;
   font-size: 0.875rem;

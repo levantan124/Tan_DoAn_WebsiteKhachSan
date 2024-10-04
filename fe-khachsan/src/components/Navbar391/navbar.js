@@ -85,7 +85,7 @@ const NavBar = () => {
                       <>
                         <li><Link to="/reservations-list" css={dropdownLinkStyle}>QL phiếu đặt phòng</Link></li>
                         <li><Link to="/services-list" css={dropdownLinkStyle}>QL dịch vụ</Link></li>
-                        <li><Link to="/list-empty-room" css={dropdownLinkStyle}>Phòng trống</Link></li>
+                        <li><Link to="/list-empty-room" css={dropdownLinkStyle}>QL Phòng trống</Link></li>
                         <li><Link to="/bill-list" css={dropdownLinkStyle}>QL Hóa đơn</Link></li>
                       </>
                     )}

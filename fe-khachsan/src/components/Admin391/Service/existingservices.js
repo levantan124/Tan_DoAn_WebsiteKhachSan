@@ -40,6 +40,13 @@ const ExistingServices = () => {
     setCurrentService(null);
   };
 
+  
+  const formatPrice = (price) => {
+    // Chuyển đổi giá thành số nguyên
+    const number = Math.round(price); 
+    return number.toLocaleString('vi-VN') + ' VND';
+  };
+
   // Handle form submission for updating a service
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -124,7 +131,7 @@ const ExistingServices = () => {
             <tr key={service.id}>
               <td>{service.id}</td>
               <td>{service.name}</td>
-              <td>{service.price} VND</td>
+              <td> {formatPrice(service.price)}</td>
               <td>
                 <button onClick={() => openPopup(service)} css={editButtonStyle}>Chỉnh sửa</button>
                 <button onClick={() => openDeleteConfirm(service)} css={deleteButtonStyle}>Xóa</button>

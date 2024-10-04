@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
-import api, { authAPI } from '../../configs391/API391';
+import { useLocation } from "react-router-dom";
+import api from '../../configs391/API391';
 import Cookies from 'react-cookies';
 import PaymentResult from './PaymentResult';
 import { MyUserContext } from '../../configs391/Context391';

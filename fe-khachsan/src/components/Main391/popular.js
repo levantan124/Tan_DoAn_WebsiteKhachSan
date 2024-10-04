@@ -65,6 +65,12 @@ const Popular = () => {
     return Math.round(total / feedbacks.length); // Làm tròn số nguyên
   };
 
+  const formatPrice = (price) => {
+    // Chuyển đổi giá thành số nguyên
+    const number = Math.round(price); 
+    return number.toLocaleString('vi-VN') + ' VND'; // Định dạng theo kiểu Việt Nam
+  };
+  
   // Hàm hiển thị rating
   const displayRatingStars = (averageRating) => {
     return [...Array(5)].map((_, index) => (
@@ -111,7 +117,7 @@ const Popular = () => {
                   <div css={contentStyle}>
                     <div css={headerStyle}>
                       <h4>{room.name}</h4>
-                      <h4>{roomType.price ? `${roomType.price} VND` : 'Price not available'}</h4>
+                      <h4>{roomType.price ? formatPrice(roomType.price) : 'Price not available'}</h4>
                     </div>
                     <p>{roomType.name || 'No details available'}</p>
                     <div css={quantityAndButtonStyle}>
@@ -154,7 +160,7 @@ const Popular = () => {
                   <div css={contentStyle}>
                     <div css={headerStyle}>
                       <h4>{room.name}</h4>
-                      <h4>{roomType.price ? `${roomType.price} VND` : 'Price not available'}</h4>
+                      <h4>{roomType.price ? formatPrice(roomType.price) : 'Price not available'}</h4>
                     </div>
                     <p>{roomType.name || 'No details available'}</p>
                     <div css={quantityAndButtonStyle}>

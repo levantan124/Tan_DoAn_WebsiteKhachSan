@@ -139,7 +139,7 @@ const editButtonStyle = css`
   display: inline-block;
   padding: 0.5rem 1rem;
   margin-right: 0.5rem;
-  background-color: #007bff;
+  background-color: #17a2b8;
   color: #fff;
   border-radius: 0.25rem;
   text-decoration: none;

@@ -36,9 +36,8 @@ const ServiceList391 = () => {
 
     return (
         <div css={styles}>
-            <h1>Danh sách dịch vụ</h1>
             <div css={groupStyle}>
-                <h2 css={groupTitleStyle}>Danh sách dịch vụ đang có</h2>
+                <h2 css={groupTitleStyle}>DANH SÁCH DỊCH VỤ ĐANG CÓ</h2>
                 <div css={cardContainerStyle}>
                     {services.map((service, index) => (
                         <div key={index} css={cardStyle}>
@@ -68,7 +67,7 @@ const styles = css`
 `;
 
 const groupStyle = css`
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     padding: 15px; /* Reduced padding */
     background-color: #fff;
     border-radius: 12px;
@@ -78,7 +77,7 @@ const groupStyle = css`
 `;
 
 const groupTitleStyle = css`
-    font-size: 1.75rem;
+    font-size: 24px;
     color: #333;
     margin-bottom: 20px;
     border-bottom: 2px solid #007bff;

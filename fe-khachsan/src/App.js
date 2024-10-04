@@ -28,7 +28,6 @@ import BillList391 from "./components/Staff391/BillList391"
 import ExportBill391 from "./components/Staff391/ExportBill391"
 import PaymentForm391 from "./components/Staff391/PaymentForm";
 import PaymentResult391 from "./components/Staff391/PaymentResult";
-import Pay from "./components/Staff391/Pay";
 import ListEmptyRoom391 from "./components/Staff391/ListEmptyRoom";
 
 //ADMIN
@@ -38,6 +37,7 @@ import ExistingRoomTypes391 from "./components/Admin391/Roomtype/existingroomtyp
 import ExistingServices391 from "./components/Admin391/Service/existingservices"
 import ExistingAccounts391 from "./components/Admin391/Accounts/existingaccounts"
 import ExistingReservations391 from "./components/Admin391/Reservations/existingreservations"
+import ExistingBills391 from "./components/Admin391/Bills/existingbills";
 import { MyUserContext } from "./configs391/Context391";
 
 const App = () => {
@@ -70,18 +70,15 @@ const App = () => {
             <Route path="/payment" element={<PaymentForm391 />} />
             <Route path="/payment-return" element={<PaymentResult391 />} />
             <Route path="/bill/:id" element={<ExportBill391 />} />
-            <Route path="/pay" element={<Pay />} />
            
-{/*             
+            
             <Route path="/staff" element={<Staff391 />}>
-              <Route path="/services-list" element={<ServiceList391 />} />
-              <Route path="/reservations-list" element={<ReservationList391 />} />
-              <Route path="/list-empty-room" element={<ListEmptyRoom391 />} />
-              <Route path="/bill-list" element={<BillList391 />} />
+              <Route path="reservations-list" element={<ReservationList391 />} />
+              <Route path="services-list" element={<ServiceList391 />} />
+              <Route path="list-empty-room" element={<ListEmptyRoom391 />} />
+              <Route path="bill-list" element={<BillList391 />} />
             </Route>
-             */}
 
-             
             {/* ADMIN */}
             <Route path="/admin" element={<Admin391 />}>
               <Route path="existing-rooms" element={<ExistingRooms391 />} />
@@ -89,6 +86,7 @@ const App = () => {
               <Route path="existing-services" element={<ExistingServices391 />} />
               <Route path="existing-accounts" element={<ExistingAccounts391 />} />
               <Route path="existing-reservations" element={<ExistingReservations391 />} />
+              <Route path="existing-bills" element={<ExistingBills391 />} />
             </Route>
           </Routes>
         </Layout>

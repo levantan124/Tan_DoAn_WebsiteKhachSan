@@ -35,6 +35,12 @@ const ListEmptyRoom = () => {
     fetchRooms();
   }, []);
 
+  const formatPrice = (price) => {
+    // Chuyển đổi giá thành số nguyên
+    const number = Math.round(price); 
+    return number.toLocaleString('vi-VN') + ' VND'; // Định dạng theo kiểu Việt Nam
+  };
+
   const roomTypeMap = roomTypes.reduce((map, roomType) => {
     map[roomType.id] = roomType;
     return map;
@@ -55,7 +61,7 @@ const ListEmptyRoom = () => {
 
   return (
     <section css={sectionContainerStyle}>
-      <h2 className="section-header reveal">Danh sách phòng trống</h2>
+      <h2 className="section-header reveal">DANH SÁCH PHÒNG TRỐNG</h2>
       <ul css={listStyle}>
         {rooms.map((room) => {
           const roomType = roomTypeMap[room.room_type] || {};
@@ -72,7 +78,7 @@ const ListEmptyRoom = () => {
                 <div css={roomDetailsStyle}>
                   <h3 css={roomNameStyle}>{room.name}</h3>
                   <p css={roomTypeStyle}>{roomType.name || 'No details available'}</p>
-                  <p css={roomPriceStyle}>{roomType.price ? `${roomType.price} VND` : 'Price not available'}</p>
+                  <p css={roomPriceStyle}>{roomType.price ? formatPrice(roomType.price) : 'Price not available'}</p>
                 </div>
                 <div css={actionButtonsStyle}>
                   <Link to={`/room/${room.id}`} css={bookingButtonStyle}>
@@ -94,7 +100,6 @@ const ListEmptyRoom = () => {
 // Styles
 const sectionContainerStyle = css`
   text-align: center;
-  padding: 5rem 0;
   margin-top: 5rem;
 `;
 

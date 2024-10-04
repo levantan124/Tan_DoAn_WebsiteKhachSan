@@ -79,6 +79,12 @@ const RoomDetails = () => {
 
   if (!room || !roomTypes.length) return <p>Loading...</p>;
 
+  const formatPrice = (price) => {
+    // Chuyển đổi giá thành số nguyên
+    const number = Math.round(price); 
+    return number.toLocaleString('vi-VN') + ' VND'; // Định dạng theo kiểu Việt Nam
+  };
+
   const roomType = roomTypes.find(rt => rt.id === room.room_type);
   const price = roomType ? roomType.price : '0';
 
@@ -190,7 +196,7 @@ const RoomDetails = () => {
         <div css={infoStyle}>
           <h3>{room.name}</h3>
           <p css={descriptionStyle}>{room.description}</p>
-          <p css={priceStyle}>Giá: {price} VND</p>
+          <p css={priceStyle}>Giá: {formatPrice(price)}</p>
           <div css={inputGroupStyle}>
             <label>
               Ngày nhận phòng:

@@ -5,7 +5,7 @@ import { authAPI } from '../../configs391/API391';
 import { useParams } from 'react-router-dom';
 
 const Feedback391 = ({ onAverageRatingChange }) => {
-  const { id } = useParams(); // Get the room ID from the URL
+  const { id } = useParams();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

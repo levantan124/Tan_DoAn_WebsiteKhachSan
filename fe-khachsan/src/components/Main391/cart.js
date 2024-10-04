@@ -39,19 +39,19 @@ const Cart = () => {
     }
   };
 
-  const getRoomPrice = (room) => {
-    const roomType = roomTypes.find(rt => rt.id === room.room_type);
-    return roomType ? `${roomType.price} VND` : 'Price not available';
+  const formatPrice = (price) => {
+    const number = Math.round(price);
+    return number.toLocaleString('vi-VN') + ' VND';
   };
 
-  const getNameRoomType = (room) => {
+  const getRoomDetails = (room) => {
     const roomType = roomTypes.find(rt => rt.id === room.room_type);
-    return roomType ? `${roomType.name}` : 'Not available';
-  };
-
-  const getQuantity = (room) => {
-    const roomType = roomTypes.find(rt => rt.id === room.room_type);
-    return roomType ? `Số lượng người: ${roomType.quantity}` : 'Not available';
+    return {
+      name: roomType ? roomType.name : 'Not available',
+      price: roomType ? formatPrice(roomType.price) : 'Price not available',
+      quantity: roomType ? `Số lượng người: ${roomType.quantity}` : 'Not available',
+      imageUrl: room.image ? `${CLOUDINARY_BASE_URL}${room.image}` : null,
+    };
   };
 
   return (
@@ -60,140 +60,125 @@ const Cart = () => {
       {cart.length === 0 ? (
         <p>Giỏ hàng của bạn đang trống.</p>
       ) : (
-        <div css={gridStyle}>
+        <ul css={listStyle}>
           {cart.map((room) => {
-            const imageUrl = room.image 
-              ? `${CLOUDINARY_BASE_URL}${room.image}` 
-              : null;
+            const { name, price, quantity, imageUrl } = getRoomDetails(room);
 
             return (
-              <div key={room.id} css={slideCardStyle}>
-                {imageUrl && (
-                  <img
-                    src={imageUrl}
-                    alt={room.name}
-                    css={imageStyle}
-                  />
-                )}
-                <div css={contentStyle}>
-                  <div css={headerStyle}>
-                    <h4>{room.name}</h4>
-                    <h4>{getRoomPrice(room)}</h4>
-                  </div>
-                  <div css={headerStyle}>
-                    <h4>{getNameRoomType(room)}</h4>
-                  </div>
-                  <div css={headerStyle}>
-                    <h4>{getQuantity(room)}</h4>
-                  </div>
+              <li key={room.id} css={listItemStyle}>
+                <div css={imageContainerStyle}>
+                  {imageUrl && (
+                    <img src={imageUrl} alt={room.name} css={imageStyle} />
+                  )}
+                </div>
+                <div css={contentContainerStyle}>
+                  <h3 css={roomNameStyle}>{room.name}</h3>
+                  <p css={roomPriceStyle}>{price}</p>
+                  <p css={roomTypeStyle}>{name}</p>
+                  <p css={roomTypeStyle}>{quantity}</p>
+                </div>
+                <div css={actionButtonsStyle}>
+                  <Link to={`/room/${room.id}`} css={bookingButtonStyle}>
+                    Xem chi tiết
+                  </Link>
                   <div css={iconStyle} onClick={() => handleRemoveFromCart(room.id)}>
                     <MdDelete />
                   </div>
-                  <Link to={`/room/${room.id}`} css={bookingButtonStyle(true)}>
-                    Xem chi tiết
-                  </Link>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </section>
   );
 };
 
+// Styles
 const sectionContainerStyle = css`
   text-align: center;
-  margin-top: 4rem;
+  margin-top: 5rem;
 `;
 
-const slideCardStyle = css`
+const listStyle = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  padding: 0;
+`;
+
+const listItemStyle = css`
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  border-radius: 0.8rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  align-items: center;
+  max-width: 300px;
+  padding: 1.5rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  max-width: 280px;
-  margin: 0 10px;
-  position: relative;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+`;
 
-  &:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  }
+const imageContainerStyle = css`
+  width: 100%;
+  height: 180px;
+  margin-bottom: 1rem;
 `;
 
 const imageStyle = css`
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 `;
 
-const contentStyle = css`
-  padding: 0.8rem;
-  text-align: left;
-`;
-
-const headerStyle = css`
+const contentContainerStyle = css`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  text-align: center;
+  gap: 1rem;
+`;
 
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-dark);
-  }
+const roomNameStyle = css`
+  font-size: 1.2rem;
+  font-weight: bold;
+`;
+
+const roomTypeStyle = css`
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+`;
+
+const roomPriceStyle = css`
+  font-size: 1rem;
+  color: var(--text-dark);
+`;
+
+const actionButtonsStyle = css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const bookingButtonStyle = css`
+  padding: 0.6em 1.2em;
+  border-radius: 20px;
+  background-color: #ff7a00;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
 `;
 
 const iconStyle = css`
-  position: absolute;
-  top: 10px;
-  right: 10px;
   font-size: 24px;
   color: red;
   cursor: pointer;
-  border-radius: 50%;
-  padding: 10px;
 `;
-
-const bookingButtonStyle = (isAvailable) => css`
-  display: inline-block;
-  padding: 0.4em 0.8em;
-  border-radius: 0.3em;
-  border: none;
-  background: ${isAvailable ? 'linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07)' : '#e74c3c'};
-  color: ${isAvailable ? 'rgb(120, 50, 5)' : '#fff'};
-  text-transform: uppercase;
-  font-weight: 600;
-  cursor: ${isAvailable ? 'pointer' : 'not-allowed'};
-  transition: background-size 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-  &:hover {
-    background-size: 150% 150%;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    color: ${isAvailable ? 'rgba(120, 50, 5, 0.8)' : '#fff'};
-    transform: ${isAvailable ? 'translateY(-2px)' : 'none'};
-  }
-
-  &:disabled {
-    background: #d3d3d3;
-    color: #a0a0a0;
-    cursor: not-allowed;
-  }
-`;
-
-const gridStyle = css`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Adjust to have exactly 3 sections */
-  gap: 1.5rem;
-  justify-items: center;
-`;  
-
 
 export default Cart;

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { css } from "@emotion/react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-function Admin() {
+function Staff() {
   const [selected, setSelected] = useState("");
   const navigate = useNavigate();
 
@@ -14,14 +14,14 @@ function Admin() {
 
   return (
     <section css={containerStyle}>
-      <h2 css={titleStyle}>Welcome to Admin Panel</h2>
+      <h2 css={titleStyle}>Welcome to Staff Panel</h2>
       <hr css={buttonDividerStyle} />
       <div css={btnGroupStyle}>
         {[
           { label: "QL Phiếu đặt phòng", path: "/staff/reservations-list" },
-          { label: "QL Dịch vụ", path: "/admin/services-list" },
-          { label: "QL Phòng trống", path: "/admin/list-empty-room" },
-          { label: "QL Hóa đơn", path: "/admin/bill-list" },
+          { label: "QL Dịch vụ", path: "/staff/services-list" },
+          { label: "QL Phòng trống", path: "/staff/list-empty-room" },
+          { label: "QL Hóa đơn", path: "/staff/bill-list" },
         ].map((option) => (
           <button
             key={option.label}
@@ -40,8 +40,8 @@ function Admin() {
 
 const containerStyle = css`
   max-width: 1000px;
-  margin: 9rem auto;
-  padding: 2rem;
+  margin: 2rem auto;
+  padding: 0.5rem;
   background-color: #f9f9f9;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -64,7 +64,7 @@ const btnGroupStyle = css`
 const btnStyle = (isActive) => css`
   position: relative;
   padding: 0.75rem 1.5rem;
-  background-color: ${isActive ? "#e8e8e8" : "#70c489"};
+  background-color: ${isActive ? "#e8e8e8" : "#4caf50"};
   color: ${isActive ? "#1d1d29" : "#fff"};
   border: none;
   border-radius: 0.5rem;
@@ -80,6 +80,7 @@ const btnStyle = (isActive) => css`
     color: ${isActive ? "#333" : "#fff"};
   }
 `;
+
 const buttonDividerStyle = css`
   margin: 2rem auto;
   border: none;
@@ -88,4 +89,4 @@ const buttonDividerStyle = css`
   width: 100%; 
 `;
 
-export default Admin;
+export default Staff;

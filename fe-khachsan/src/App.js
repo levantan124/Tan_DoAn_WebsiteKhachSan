@@ -18,6 +18,7 @@ import Sale from "./components/Main391/sale";
 
 import Home391 from "./components/Home391/home";
 
+
 // STAFF
 import Staff391 from "./components/Staff391/Staff"
 import ServiceList391 from "./components/Staff391/ServiceList391"
@@ -67,6 +68,7 @@ const App = () => {
             <Route path="/add-services/:id" element={<AddService391 />} />
             <Route path="/bill-list" element={<BillList391 />} />
             <Route path="/payment" element={<PaymentForm391 />} />
+            <Route path="/payment-return" element={<PaymentResult391 />} />
             <Route path="/bill/:id" element={<ExportBill391 />} />
             <Route path="/pay" element={<Pay />} />
            

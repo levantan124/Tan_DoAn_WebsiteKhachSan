@@ -1,47 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { authAPI } from '../../configs391/API391';
-import Cookies from 'react-cookies';
+import { useLocation } from 'react-router-dom';
+
 
 const PaymentResult = () => {
     const location = useLocation();
-    const navigate = useNavigate();
 
     const [paymentResult, setPaymentResult] = useState(null);
-    const csrftoken = Cookies.load('csrftoken');
-
-
-    // const updateBookingStatus = async (bookingId, status) => {
-    //     try {
-    //         await authAPI.post(`/hotel/booking/${bookingId}/change-status/`, {
-    //             payment_status: status
-    //         }, {
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRFToken': csrftoken
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.error('Error updating booking status:', error);
-    //     }
-    // };
-
-    // const updateVnpResponseCode = async (bookingId, vnpResponseCode) => {
-    //     try {
-    //         await api.patch(`/hotel/invoices/update_vnp_response_code_by_booking/`, {
-    //             booking_id: bookingId,
-    //             vnp_response_code: vnpResponseCode,
-    //             status: "paid"
-    //         }, {
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRFToken': csrftoken
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.error('Error updating VNPay response code:', error);
-    //     }
-    // };
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -61,19 +25,12 @@ const PaymentResult = () => {
                 msg: queryParams.get('vnp_Message') || "No message provided"
             });
 
-            const bookingId = localStorage.getItem('bookingId');
-            if (isSuccess && bookingId) {
-                // updateBookingStatus(bookingId, 'paid');
-                // updateVnpResponseCode(bookingId, queryParams.get('vnp_ResponseCode'));
-                // Sau khi cập nhật trạng thái thành công, có thể xóa `bookingId` khỏi localStorage
-                // localStorage.removeItem('bookingId');
-                // localStorage.removeItem('bookingConfirmationCode');
-            }
+            
         }
     }, [location.search]);
 
     return (
-        <div className="payment-result-container">
+        <div className="container" style={{marginTop:"100px", padding:"20px", maxWidth:"500px"}}>
             {paymentResult ? (
                 <div>
                     <h3>{paymentResult.title}</h3>
@@ -85,6 +42,7 @@ const PaymentResult = () => {
                         <p><strong>VNPay Transaction No:</strong> {paymentResult.vnpTransactionNo}</p>
                         <p><strong>VNPay Response Code:</strong> {paymentResult.vnpResponseCode}</p>
                         <p><strong>Message:</strong> {paymentResult.msg}</p>
+                        <p><strong>VUI LÒNG CHỤP LẠI ĐẾN QUẦY LỄ TÂN XÁC NHẬN ĐÃ THANH TOÁN</strong></p>
                     </div>
                 </div>
             ) : (

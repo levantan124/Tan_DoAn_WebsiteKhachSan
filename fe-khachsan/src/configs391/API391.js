@@ -22,6 +22,7 @@ export const endpoints = {
     'r': '/rooms/',
     'rp': (id) => `/room-images/${id}/`,
     'login-google': '/accounts/google-login/',
+    'googleCallbackLogin': `${BASE_URL}google/callback/login`,
     'sale': '/promotions/',
 
     

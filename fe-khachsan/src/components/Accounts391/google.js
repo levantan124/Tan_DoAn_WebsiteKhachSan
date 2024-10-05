@@ -1,116 +1,45 @@
-import React from 'react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { useNavigate } from 'react-router-dom';
-// import { useUser } from '../../configs391/Context391';
-import APIs, { endpoints, authAPI2 } from '../../configs391/API391';
-import cookie from 'react-cookies';
-
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
+import { endpoints } from '../../configs391/API391';
 
 const GoogleButton = () => {
-    // const navigate = useNavigate();
-    // const { loginWithToken } = useUser();
-    const nav = useNavigate();
 
+    const handleGoogleLogin = async () => {
+        const googleCallbackLogin = endpoints['googleCallbackLogin'];
+        const redirectUri = encodeURIComponent(googleCallbackLogin);
 
-    // const handleLoginSuccess = async (response) => {
-    //     try {
-    //         console.log('Google login response:', response);
-    //         const { credential } = response.credential;
-    //         if (!credential) {
-    //             throw new Error('Không tìm thấy mã xác thực trong phản hồi từ Google');
-    //         }
-    //         const res = await APIs.post(endpoints['login-google'], {
-    //             id_token: credential
-    //         });
-    //         console.log(res)
-    //         const { user, token, created } = res.data;
-    //         // loginWithToken(token);
-    //         // let resp = await APIs.post(endpoints['login'], new URLSearchParams({
-    //         //     'username': res.user.username,
-    //         //     'password': password,
-    //         //     'client_id': '5j5685BlfLjZ1SZ50c59oM6C57M2lQnhMXmK9b7e',
-    //         //     'client_secret': 'kQW8noCmtlgt1r0S9NsNAgpMmERDJDlbVbplYBvKWepg6kQOE4GWH3zaE9go6tGndYFVafZy7ApxisTieYurUGQuGxwfduM50YK8Q1l9fiUj3bPRcVcdF6cUOBhXhhp9',
-    //         //     'grant_type': 'password',
-    //         //   }), {
-    //         //     headers: {
-    //         //       'Content-Type': 'application/x-www-form-urlencoded',
-    //         //     }
-    //         //   });
-        
-    //           if (res.status === 200) {
-    //             cookie.save('token', token);
-    //             let userdata = await authAPI().get(endpoints['current_user'], token);
-    //             cookie.save('user', userdata.data);
-        
-    //             // Redirect based on role
-    //             if (userdata.data.role === 2) {
-    //               nav('/staff');
-    //             } else if (userdata.data.role === 1) {
-    //               nav('/admin');
-    //             } else {
-    //               nav('/');
-    //             }
-    //         }
-    //     }catch (error) {
-    //         console.error('Login failed:', error);
-    //         alert(`Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.\nDetails: ${error.message}`);
-    //     }
-    // };
+        const clientId = '391738320330-jdk2bbm8gmlf682ih1a5tgqbhrd3k300.apps.googleusercontent.com';
 
-    const handleLoginSuccess = async (response) => {
-        try {
-            // Kiểm tra cấu trúc của đối tượng response
-            console.log('Google login response:', response);
-            const credential = response.credential;
-            if (!credential) {
-                throw new Error('Không tìm thấy mã xác thực trong phản hồi từ Google');
-            }
-    
-            const res = await APIs.post(endpoints['login-google'], {
-                id_token: credential
-            });
-    
-            console.log(res);
-            const { user, token, created } = res.data;
-            console.log(token.access_token)
+        // Lấy URL frontend hiện tại để truyền qua backend
+        const currentFrontendUrl = encodeURIComponent(window.location.origin);
 
-            if (res.status === 200) {
-                cookie.save('token', token.access_token);
-                let userdata = await authAPI2(token.access_token).get(endpoints['current_user']);
-                cookie.save('user', userdata.data);
-    
-                // Redirect based on role
-                if (userdata.data.role === 2) {
-                    nav('/staff');
-                } else if (userdata.data.role === 1) {
-                    nav('/admin');
-                } else {
-                    nav('/');
-                }
-            }
-        } catch (error) {
-            console.error('Login failed:', error);
-            alert(`Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.\nDetails: ${error.message}`);
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile&access_type=offline&prompt=select_account&state=${currentFrontendUrl}`;
+
+        window.location.href = authUrl;
+    };
+
+    const inputSubmitStyles = css`
+        border: none;
+        background: #ff6347;
+        color: #fff;
+        height: 40px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 10px 0; /* Adjust margin for better spacing */
+        width: 100%; /* Ensure button is full width */
+        max-width: 100%; /* Limit width of button */
+
+        &:hover {
+            background: #e5533d;
         }
-    };
-    
-    const handleLoginFailure = (error) => {
-        console.error('Login failed:', error);
-        alert("Google login failed");
-    };
+    `;
 
     return (
-        <GoogleOAuthProvider clientId='391738320330-jdk2bbm8gmlf682ih1a5tgqbhrd3k300.apps.googleusercontent.com'>
-            <GoogleLogin
-                onSuccess={handleLoginSuccess}
-                onFailure={handleLoginFailure}
-                shape="circle"
-                size="large"
-                theme="filled_black"
-                text="signin_with"
-                width="400"
-            />
-        </GoogleOAuthProvider>
+        <button type="button" onClick={handleGoogleLogin} css={inputSubmitStyles}>
+            Google
+        </button>
     );
 };
 

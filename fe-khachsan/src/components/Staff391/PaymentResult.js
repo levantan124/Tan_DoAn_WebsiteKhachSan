@@ -5,7 +5,17 @@ import { css } from '@emotion/react';
 import api from '../../configs391/API391'; // Import your API module
 import Cookies from 'react-cookies';
 
-const PaymentResult = () => {
+const PaymentResult = ({ 
+    title, 
+    result, 
+    orderId, 
+    amount, 
+    orderDesc, 
+    vnpTransactionNo, 
+    vnpResponseCode, 
+    msg, 
+    bookingId // Accept bookingId as a prop
+}) => {
     const location = useLocation();
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken'); // Load CSRF token
@@ -60,16 +70,17 @@ const PaymentResult = () => {
         <div css={containerStyle}>
             {paymentResult ? (
                 <div css={resultContainerStyle}>
-                    <h1 css={titleStyle}>{paymentResult.title}</h1>
+                    <h1 css={titleStyle}>{title}</h1>
                     <div css={resultDetailsStyle}>
-                        <p><strong>Transaction Result:</strong> {paymentResult.result}</p>
-                        <p><strong>Order ID:</strong> {paymentResult.orderId}</p>
-                        <p><strong>Amount:</strong> {paymentResult.amount} VND</p>
-                        <p><strong>Order Description:</strong> {paymentResult.orderDesc}</p>
-                        <p><strong>VNPay Transaction No:</strong> {paymentResult.vnpTransactionNo}</p>
-                        <p><strong>VNPay Response Code:</strong> {paymentResult.vnpResponseCode}</p>
-                        <p><strong>Message:</strong> {paymentResult.msg}</p>
+                        <p><strong>Transaction Result:</strong> {result}</p>
+                        <p><strong>Order ID:</strong> {orderId}</p>
+                        <p><strong>Amount:</strong> {amount} VND</p>
+                        <p><strong>Order Description:</strong> {orderDesc}</p>
+                        <p><strong>VNPay Transaction No:</strong> {vnpTransactionNo}</p>
+                        <p><strong>VNPay Response Code:</strong> {vnpResponseCode}</p>
+                        <p><strong>Message:</strong> {msg}</p>
                         <p css={importantMessageStyle}><strong>Vui lòng chụp lại đến quầy lễ tân để xác nhận thanh toán.</strong></p>
+                        <p><strong>Booking ID:</strong> {bookingId}</p> {/* Display bookingId */}
                     </div>
                 </div>
             ) : (

@@ -1,10 +1,11 @@
+/** @jsxImportSource @emotion/react */
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { css } from '@emotion/react';
 import api from '../../configs391/API391'; // Import your API module
 import Cookies from 'react-cookies';
 
-const PaymentResult = ({ bookingId }) => {
+const PaymentResult = () => {
     const location = useLocation();
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken'); // Load CSRF token
@@ -28,14 +29,14 @@ const PaymentResult = ({ bookingId }) => {
 
             // Update booking status if payment is successful
             if (isSuccess) {
-                updateBookingStatus(bookingId);
+                updateBookingStatus(queryParams.get('vnp_OrderInfo')); // Use orderDesc for the API call
             }
         }
-    }, [location.search, bookingId]);
+    }, [location.search]);
 
-    const updateBookingStatus = async (bookingId) => {
+    const updateBookingStatus = async (orderDesc) => {
         try {
-            const url = `/bills/${bookingId}/change-status/`;
+            const url = `/bills/${orderDesc}/change-status/`; // Construct the URL using orderDesc
             const response = await api.post(url, {
                 status: 'paid' // Set the status to 'paid'
             }, {

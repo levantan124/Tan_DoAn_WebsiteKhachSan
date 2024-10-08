@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import api from '../../configs391/API391'; // Import your API module
 import Cookies from 'react-cookies';
 
-const PaymentResult = ({ title, result, orderId, amount, orderDesc, vnpTransactionNo, vnpResponseCode, msg, bookingId }) => {
+const PaymentResult = ({ bookingId }) => {
     const location = useLocation();
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken'); // Load CSRF token
@@ -16,7 +16,7 @@ const PaymentResult = ({ title, result, orderId, amount, orderDesc, vnpTransacti
         if (transactionStatus) {
             const isSuccess = transactionStatus === '00';
             setPaymentResult({
-                title: isSuccess ? "Payment Success" : "Payment Failure",
+                title: isSuccess ? "Payment Successful" : "Payment Failed",
                 result: isSuccess ? "Success" : "Failed",
                 orderId: queryParams.get('vnp_TxnRef'),
                 amount: queryParams.get('vnp_Amount'),
@@ -31,12 +31,12 @@ const PaymentResult = ({ title, result, orderId, amount, orderDesc, vnpTransacti
                 updateBookingStatus(bookingId);
             }
         }
-    }, [location.search, bookingId]); // Include bookingId as a dependency
+    }, [location.search, bookingId]);
 
     const updateBookingStatus = async (bookingId) => {
         try {
-            const response = await api.post('/change_booking_status', {
-                booking_id: bookingId,
+            const url = `/bills/${bookingId}/change-status/`;
+            const response = await api.post(url, {
                 status: 'paid' // Set the status to 'paid'
             }, {
                 headers: {
@@ -80,54 +80,61 @@ const PaymentResult = ({ title, result, orderId, amount, orderDesc, vnpTransacti
 
 // Emotion CSS styles
 const containerStyle = css`
-  width: 600px;
-  background-color: #fafafa;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-radius: 24px;
-  padding: 50px;
+  max-width: 600px;
   margin: 50px auto;
+  padding: 40px;
+  border-radius: 16px;
+  background: linear-gradient(to right, #ffffff, #f8f9fa);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
 
 const resultContainerStyle = css`
   margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const titleStyle = css`
-  font-size: 24px;
-  color: #fa5b30;
-  background: linear-gradient(to right, #fa5b30, #3e8e41);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 30px;
+  font-size: 28px;
+  color: #28a745;
+  margin-bottom: 15px;
 `;
 
 const resultDetailsStyle = css`
-  font-size: 18px;
-  color: #555;
+  font-size: 16px;
+  color: #343a40;
   text-align: left;
 
   p {
-    margin: 10px 0;
-    padding: 8px;
-    background-color: #f4f4f4;
+    margin: 12px 0;
+    padding: 10px;
+    background-color: #e9ecef;
     border-radius: 8px;
+    transition: background-color 0.3s ease;
+    
+    &:hover {
+      background-color: #dee2e6;
+    }
   }
 `;
 
 const importantMessageStyle = css`
   font-weight: bold;
-  background-color: #fffbe6;
-  color: #f39c12;
-  border: 1px solid #f39c12;
-  padding: 10px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 12px;
   border-radius: 8px;
   margin-top: 20px;
 `;
 
 const loadingStyle = css`
-  font-size: 20px;
-  color: #888;
+  font-size: 18px;
+  color: #6c757d;
 `;
 
 export default PaymentResult;

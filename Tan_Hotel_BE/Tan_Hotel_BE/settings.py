@@ -10,31 +10,38 @@ load_dotenv()
 
 # Cloudinary
 cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'vantan'),
-    api_key=os.getenv('CLOUDINARY_API_KEY', '774148986844264'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET', 'mKbiOnwPv7W2EDdosKk31dww9Uc')
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
 )
 
-
-#VNPay
-VNPAY_TMN_CODE = os.environ.get("VNPAY_TMN_CODE")
-VNPAY_HASH_SECRET_KEY = os.environ.get("VNPAY_HASH_SECRET_KEY")
+# VNPay
+VNPAY_TMN_CODE = os.getenv("VNPAY_TMN_CODE")
+VNPAY_HASH_SECRET_KEY = os.getenv("VNPAY_HASH_SECRET_KEY")
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-VNPAY_RETURN_URL = 'https://oceanhotel.vercel.app/payment-result'
+VNPAY_RETURN_URL = 'https://tanhotel391.vercel.app/payment-result'
 
-# Google reCAPTCHA settings
-RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '6LfIuEEqAAAAAJ0blbtnwm1pQ_xddxWSLdKTCyMy')
-RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '6LfIuEEqAAAAAPTbSd3BmU3UZoPZH0HLCnrLu8IG')
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+# Google OAuth
+GOOGLE_CLIENT_ID='391738320330-jdk2bbm8gmlf682ih1a5tgqbhrd3k300.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET='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'
+GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+
+# Recaptcha
+RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY')
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'Tan_Hotel.send_email.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,17 +50,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$y7(f^h++28^jft(h%^tt&_-)!mq-tj=v#nng_*6ih*!$pfe)&')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
+ALLOWED_HOSTS = ['localhost:3000', 'tanhotel391.vercel.app/', '127.0.0.1']
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:8000",
+    # "https://tanhotel391.vercel.app/",
 ]
 
 
@@ -61,17 +68,24 @@ AUTH_USER_MODEL = 'Tan_Hotel.Account'
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'Tan_Hotel',
+    'addon',
     'oauth2_provider', # cung cấp token
     'drf_yasg',
     'rest_framework',
     'corsheaders',
+
+    # Chat
+    'channels',
+    'channels_redis',
 ]
 
 MIDDLEWARE = [
@@ -108,16 +122,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Tan_Hotel_BE.wsgi.application'
 
+ASGI_APPLICATION = "Tan_Hotel_BE.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
 # Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'tanhotel91'),
-        'USER': os.getenv('DB_USER', 'root'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'Abcd1234'),
-        'HOST': os.getenv('DB_HOST', ''),  # mặc định localhost
+        'NAME': 'tanhotel91',
+        'USER': 'root',
+        'PASSWORD': 'Abcd1234',
+        'HOST': '',  # mặc định localhost
     }
 }
+
+# # Database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#     }
+# }
 
 # Xác thực các yêu cầu từ API
 REST_FRAMEWORK = {

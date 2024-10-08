@@ -8,3 +8,4 @@ class PaymentForm(forms.Form):
     order_desc = forms.CharField(max_length=255)
     bank_code = forms.CharField(max_length=50, required=False)
     language = forms.CharField(max_length=2, required=False)
+    reservation = forms.IntegerField()

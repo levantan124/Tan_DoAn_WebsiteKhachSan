@@ -7,7 +7,30 @@ from oauth2_provider.models import AccessToken, RefreshToken, Application
 from oauth2_provider.settings import oauth2_settings
 from oauthlib.common import generate_token
 from datetime import timedelta
+from requests_oauthlib import OAuth2Session
+from django.conf import settings
 
+
+
+
+def google_callback(redirect_uri: str, auth_uri: str):
+    session = OAuth2Session(
+        settings.GOOGLE_CLIENT_ID,
+        redirect_uri=redirect_uri,
+        scope=[
+            "openid",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+        ],
+    )
+    session.fetch_token(
+        settings.GOOGLE_TOKEN_URL,
+        client_secret=settings.GOOGLE_CLIENT_SECRET,
+        authorization_response=auth_uri,
+    )
+
+    user_data = session.get("https://www.googleapis.com/oauth2/v1/userinfo").json()
+    return user_data
 
 def upload_image_from_url(image_url):
     response = requests.get(image_url)

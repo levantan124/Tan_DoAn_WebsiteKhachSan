@@ -97,6 +97,22 @@ class Tan_BillSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class Tan_BillCreateSerializer(serializers.ModelSerializer):
+    reservation = serializers.PrimaryKeyRelatedField(queryset=Reservation.objects.all())
+    class Meta:
+        model = Bill
+        fields = [
+            'id',  # Thêm nếu bạn muốn hiển thị ID
+            'reservation',
+            'total_amount',
+            'description',
+            'status'
+        ]
+
+    def create(self, validated_data):
+        return Bill.objects.create(**validated_data)
+
+
 # Serializer cho Refund
 class Tan_RefundSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,3 +139,13 @@ class Tan_PromotionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Promotion
         fields = '__all__'
+
+    def validate(self, data):
+        """
+        Custom validation for coupon.
+        """
+        # Kiểm tra xem ngày bắt đầu có trước ngày kết thúc không
+        if data['start_date'] >= data['end_date']:
+            raise serializers.ValidationError("Ngày bắt đầu phải trước ngày kết thúc.")
+
+        return data

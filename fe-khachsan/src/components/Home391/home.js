@@ -10,13 +10,19 @@ import Client from "../Main391/client";
 import Reward from "../Main391/reward";
 import Footer from "../Footer391/footer";
 import Sale from "../Main391/sale";
-import ChatMess from "../Main391/chatmess";
 import { motion } from 'framer-motion';
+import { MyUserContext } from '../../configs391/Context391';
+import ChatRoom391 from "../Chat391/ChatRoom";
+import ChatWebSocket391 from "../Chat391/ChatWebSoket";
 
 const Home = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useContext(MyDispatchContext);
+    const [currentChatUser, setCurrentChatUser] = useState(null);
+    const [chatBoxOpen, setChatBoxOpen] = useState(false);
+    const [messages2, setMessages2] = useState([]);
+    const user = useContext(MyUserContext);
     const [isVisible, setIsVisible] = useState({
         header: false,
         popular: false,
@@ -24,6 +30,64 @@ const Home = () => {
         reward: false,
         footer: false,
     });
+
+    const fetchReceptionists = async () => {
+        try {
+            const response = await authAPI().get('/accounts/'); // Gọi API để lấy danh sách tài khoản
+    
+            const accounts = response.data; // Dữ liệu tài khoản từ phản hồi
+            console.log("All Accounts:", accounts);
+    
+            // Lọc ra tài khoản có role 2
+            const receptionists = accounts.filter(account => account.role === 2);
+    
+            console.log("Receptionists:", receptionists);
+    
+            // Chọn ngẫu nhiên một tài khoản Lễ tân
+            if (receptionists.length > 0) {
+                return receptionists[Math.floor(Math.random() * receptionists.length)];
+            } else {
+                throw new Error("No receptionists found.");
+            }
+        } catch (error) {
+            console.error("Error fetching receptionists:", error);
+            throw error;
+        }
+    };
+        
+    const openChatBox = async () => {
+        if (!chatBoxOpen) {
+            try {
+                const receptionist = await fetchReceptionists();
+                console.log(receptionist)
+                setCurrentChatUser(receptionist);
+                setChatBoxOpen(true);
+            } catch (error) {
+                console.error("Failed to load receptionist:", error);
+            }
+        } else {
+            setChatBoxOpen(false);
+            setCurrentChatUser(null);
+        }
+    };
+
+    const room_name = currentChatUser ? `${currentChatUser.id}and${user.id}` : null;
+    const { messages, sendMessage } = ChatWebSocket391(currentChatUser, user, room_name)
+
+
+    const closeChatBox = () => {
+        setChatBoxOpen(false);
+        setCurrentChatUser(null);
+    };
+
+    const handleMessageReceived = (message) => {
+        setMessages2(prevMessages => [...prevMessages, message]);
+    };
+
+    //const { sendMessage } = ChatWebSocket391(currentChatUser, handleMessageReceived);
+ 
+    
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -133,6 +197,20 @@ const Home = () => {
                     animate={isVisible.footer ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }} 
                     transition={{ duration: 0.5 }}
                 >
+
+                    <button onClick={openChatBox} className="p-3 text-orange-700 hover:text-red-700 hover:underline cursor-pointer">
+                        Chat with Receptionist
+                    </button>
+                    {chatBoxOpen && (
+                        <div id="chat" className='fixed right-2 bottom-2 p-4 bg-orange-600 border border-gray-300 rounded-xl'>
+                            <ChatRoom391 
+                                currentChatUser={currentChatUser}
+                                messages={messages}
+                                sendMessage={sendMessage}
+                                closeChatBox={closeChatBox}
+                            />
+                        </div>
+                    )}
                     <Footer />
                 </motion.div>
             </div>

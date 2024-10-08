@@ -18,6 +18,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('addons/', include('addon.urls')),
     path('admin/', admin.site.urls),
     path('', include('Tan_Hotel.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',

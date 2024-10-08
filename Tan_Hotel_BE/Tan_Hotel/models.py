@@ -117,8 +117,16 @@ class ReservationService(models.Model):
 
 
 class Bill(BaseModel):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+
     reservation = models.ForeignKey(Reservation, null=True, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    description = models.TextField(null=True, blank = True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')  # Payment status
 
     def calculate_total_amount(self):
         total_services_cost = sum(rs.total_price for rs in self.reservation.reservationservice_set.all())
@@ -165,11 +173,20 @@ class Feedback(models.Model):
 
 
 class Promotion(BaseModel):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    discount_percentage = models.PositiveIntegerField()
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    title = models.CharField(max_length=200)  # Tiêu đề của chương trình khuyến mãi
+    description = models.TextField()  # Mô tả chi tiết về khuyến mãi
+    code = models.CharField(max_length=50, unique=True, null=True)  # Mã khuyến mãi
+    discount = models.IntegerField(null=True, help_text="Discount value percentage")
+    start_date = models.DateTimeField()  # Ngày bắt đầu khuyến mãi
+    end_date = models.DateTimeField()  # Ngày kết thúc khuyến mãi
+    max_redemptions = models.IntegerField(default=100, null=True)  # Số lần khuyến mãi có thể sử dụng
+    active = models.BooleanField(default=True, null=True)  # Trạng thái khuyến mãi
+    usage_count = models.IntegerField(default=0, null=True)  # Số lần khuyến mãi đã được sử dụng
 
     def __str__(self):
         return self.title
+
+    def is_valid(self):
+        """Check if promotion is valid based on date and active status."""
+        now = timezone.now()
+        return self.active and self.start_date <= now <= self.end_date

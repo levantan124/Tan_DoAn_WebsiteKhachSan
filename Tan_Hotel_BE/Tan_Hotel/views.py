@@ -1,8 +1,6 @@
 # views.py
 import time
 from datetime import datetime
-
-import requests
 from django.contrib.auth.models import AnonymousUser
 from oauth2_provider.settings import oauth2_settings
 from rest_framework import viewsets, generics, parsers, permissions, exceptions, status, serializers
@@ -13,7 +11,6 @@ from google.auth.transport import requests as gg_requests
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
-from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -41,11 +38,10 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
     permission_classes = [permissions.AllowAny()]  # role nào vô cùng đc
 
     def get_permissions(self):
-        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login', 'verify-captcha']:
+        if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login']:
             # permission_classes = [IsAuthenticated]
             return [permissions.AllowAny()]
-        elif self.action == 'create':
-            print(f"self.action: {self.action}")
+        elif self.action in ['create']:
             if isinstance(self.request.user, AnonymousUser):
                 if self.request.data and (self.request.data.get('role') == 3):
                     return [permissions.AllowAny()]
@@ -61,8 +57,8 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
                     return [permissions.IsAuthenticated()]
                 else:
                     raise exceptions.PermissionDenied()
-            elif self.action == 'delete_staff':
-                return [perm.Tan_IsAdmin()]
+        elif self.action in ['delete_staff']:
+            permission_classes = [perm.Tan_IsAdmin()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
@@ -119,6 +115,8 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
             user_email = idinfo.get('email')
             user_name = idinfo.get('name')
             user_picture = idinfo.get('picture')
+            print("Token issue time:", idinfo.get('iat'))
+            print("Current server time:", time.time())
 
             if not user_email:
                 return Response({'error': 'Không tìm thấy email trong mã xác thực'}, status=status.HTTP_400_BAD_REQUEST)
@@ -151,23 +149,42 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
             return Response({'error': 'Xác thực không thành công', 'details': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['post'], url_path='verify-captcha', detail=False)
-    def verify_captcha(self, request):
-        captcha_response = request.data.get('g-recaptcha-response')
-        if not captcha_response:
-            return Response({'error': 'Mã xác thực CAPTCHA không được cung cấp'}, status=status.HTTP_400_BAD_REQUEST)
 
-        data = {
-            'secret': settings.RECAPTCHA_SECRET_KEY,
-            'response': captcha_response
-        }
-        response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-        result = response.json()
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from django.urls import reverse
+from .utils import google_callback
+from django.shortcuts import redirect
 
-        if result.get("success"):
-            return Response({'success': True}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Xác thực CAPTCHA không thành công'}, status=status.HTTP_400_BAD_REQUEST)
+
+class GoogleOAuth2LoginCallbackView(APIView):
+    def get(self, request):
+        redirect_uri = request.build_absolute_uri(reverse("google_login_callback"))
+        auth_uri = request.build_absolute_uri()
+
+        user_data = google_callback(redirect_uri, auth_uri)
+
+        # Lấy URL frontend từ OAuth state
+        frontend_url = request.GET.get('state')
+
+        if frontend_url is None:
+            return JsonResponse({"error": "State (frontend URL) is missing."}, status=400)
+
+        user_picture = user_data.get('picture')
+
+        user, created = Account.objects.get_or_create(
+                username=user_data["email"],
+                defaults={'name': user_data["given_name"], 'email': user_data["email"],
+                          'avatar': utils.upload_image_from_url(user_picture)})
+
+
+
+        access_token, refresh_token = utils.create_user_token(user=user)
+
+        # Chuyển hướng về frontend với token trong query parameters
+        redirect_url = f"{frontend_url}/?token={access_token.token}"
+        return redirect(redirect_url)
+
 
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
@@ -221,8 +238,9 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     serializer_class = Tan_RoomSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'create', 'update', 'partial_update', 'destroy', 'delete_room', 'retrieve', 'reservations']:
+        if self.action in ['list', 'create', 'update', 'partial_update', 'destroy', 'delete_room', 'retrieve', 'reservations', 'set-empty']:
             return [permissions.AllowAny()]
+        return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         try:
@@ -302,6 +320,31 @@ class Tan_RoomViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         serializer = Tan_ReservationSerializer(reservations, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'], url_path='set-empty')
+    def set_empty(self, request, pk=None):
+        """
+        Custom action to set the room status to 'Trống' (Empty) by room ID.
+        """
+        # Lấy phòng dựa trên ID
+        try:
+            room = Room.objects.get(id=pk)
+        except Room.DoesNotExist:
+            return Response({'detail': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Kiểm tra nếu trạng thái phòng đã là 'Trống' (status = 0)
+        if room.status == 0:
+            return Response({'detail': 'Room is already available.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Cập nhật trạng thái phòng về 'Trống' (status = 0)
+        room.status = 0
+        room.save()
+
+        return Response({
+            'message': f"Room '{room.name}' status has been set to 'Trống'.",
+            'status': room.status  # Hiển thị trạng thái hiện tại (0 hoặc 1)
+        }, status=status.HTTP_200_OK)
+
+
 class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     queryset = RoomImage.objects.all()
     serializer_class = Tan_RoomImageSerializer
@@ -350,6 +393,7 @@ class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class Tan_ServiceViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
     queryset = Service.objects.filter(active=True)
     serializer_class = Tan_ServiceSerializer
@@ -418,7 +462,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
             else:
                 raise PermissionDenied("Only receptionists can cancel reservations.")
         elif self.action == 'get_reservation_history':
-            return [permissions.AllowAny()]
+            return [permissions.IsAuthenticated(), permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
     def get_queryset(self):
@@ -613,7 +657,7 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
     @action(methods=['get'], url_path='reservation-history', detail=False)
     def get_reservation_history(self, request):
         # Lấy lịch sử đặt phòng của khách hàng
-        reservations = Reservation.objects.all().order_by('-book_date')
+        reservations = Reservation.objects.filter(guest=request.user).order_by('-book_date')
         serializer = Tan_ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -626,6 +670,33 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Reservation.DoesNotExist:
             return Response({"detail": "Reservation not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='reservation-by-room/(?P<room_id>[^/.]+)')
+    def get_reservations_by_room(self, request, room_id=None):
+        try:
+            # Lấy tất cả các reservation có liên kết với room_id này
+            reservations = Reservation.objects.filter(room__id=room_id, active=True)
+
+            if not reservations.exists():
+                return Response({"detail": "No reservations found for this room."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Tạo response với thông tin các ngày checkin, checkout
+            data = []
+            for reservation in reservations:
+                data.append({
+                    'guest': reservation.guest.name,
+                    'book_date': reservation.book_date,
+                    'checkin': reservation.checkin,
+                    'checkout': reservation.checkout,
+                    'status_checkin': reservation.status_checkin
+                })
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Room.DoesNotExist:
+            return Response({"detail": "Room not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -766,6 +837,17 @@ class Tan_BillViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         serializer = Tan_BillSerializer(bill)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['post'], url_path='change-status')
+    def change_status(self, request, pk=None):
+        try:
+            bills = Bill.objects.filter(reservation_id=pk)
+        except Bill.DoesNotExist:
+            return Response({"error": "Bill not found for the given reservation"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Change the bill status to 'paid'
+        bills.update(status='paid')
+
+        return Response({"message": "Bill status updated to paid"}, status=status.HTTP_200_OK)
 
 class Tan_RefundViewSet(viewsets.ModelViewSet):
     queryset = Refund.objects.all()
@@ -818,6 +900,61 @@ class Tan_FeedbackViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
         except Account.DoesNotExist:
             return Response({'detail': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class Tan_PromotionViewSet(viewsets.ModelViewSet):
+class Tan_PromotionViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView, generics.ListAPIView):
     queryset = Promotion.objects.all()
     serializer_class = Tan_PromotionSerializer
+
+    def get_queryset(self):
+        """Override to filter active promotions."""
+        return Promotion.objects.filter(active=True)
+
+    def perform_update(self, serializer):
+        """Override to handle logic before saving updates."""
+        serializer.save()
+
+    def partial_update(self, request, *args, **kwargs):
+        """Partial update a promotion."""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        except Exception as e:
+            print("Error during partial update:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='get-promotion')
+    def get_promotion(self, request):
+        """Get promotion by code."""
+        code = request.data.get('code')
+        try:
+            promotion = Promotion.objects.get(code=code)
+            if promotion.is_valid() and promotion.usage_count < promotion.max_redemptions:
+                return Response({
+                    'title': promotion.title,
+                    'discount': promotion.discount,
+                    'description': promotion.description,
+                    'start_date': promotion.start_date,
+                    'end_date': promotion.end_date,
+                })
+            else:
+                return Response({
+                    'title': 'Invalid',
+                    'discount': 0,
+                    'description': 'Promotion is not valid or expired.',
+                })
+        except Promotion.DoesNotExist:
+            return Response({
+                'title': 'Invalid',
+                'discount': 0,
+                'description': 'Promotion does not exist.',
+            })
+
+    @action(detail=True, methods=['patch'], url_path='deactivate-promotion')
+    def deactivate_promotion(self, request, pk=None):
+        """Deactivate a promotion."""
+        promotion = self.get_object()
+        promotion.active = False
+        promotion.save()
+        return Response({'success': True, 'message': 'Promotion has been deactivated.'}, status=status.HTTP_200_OK)

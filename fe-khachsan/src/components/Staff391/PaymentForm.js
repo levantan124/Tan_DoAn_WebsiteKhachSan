@@ -194,7 +194,6 @@ const PaymentForm = () => {
                     vnpTransactionNo={paymentResult.vnpTransactionNo}
                     vnpResponseCode={paymentResult.vnpResponseCode}
                     msg={paymentResult.msg}
-                    bookingId={booking.id}
                 />
             )}
         </div>

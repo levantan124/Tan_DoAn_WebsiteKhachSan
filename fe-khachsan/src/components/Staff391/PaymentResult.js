@@ -5,20 +5,13 @@ import { css } from '@emotion/react';
 import api from '../../configs391/API391'; // Import your API module
 import Cookies from 'react-cookies';
 
-const PaymentResult = ({ 
-    title, 
-    result, 
-    orderId, 
-    amount, 
-    orderDesc, 
-    vnpTransactionNo, 
-    vnpResponseCode, 
-    msg, 
-    bookingId // Accept bookingId as a prop
-}) => {
+const PaymentResult = () => {
     const location = useLocation();
     const [paymentResult, setPaymentResult] = useState(null);
     const csrftoken = Cookies.load('csrftoken'); // Load CSRF token
+
+    // Extract booking info from location state
+    const booking = location.state?.booking || {}; // Safe access to booking
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -38,15 +31,15 @@ const PaymentResult = ({
             });
 
             // Update booking status if payment is successful
-            if (isSuccess) {
-                updateBookingStatus(queryParams.get('vnp_OrderInfo')); // Use orderDesc for the API call
+            if (isSuccess && booking.id) {
+                updateBookingStatus(booking.id); // Use booking.id for the API call
             }
         }
-    }, [location.search]);
+    }, [location.search, booking.id]);
 
-    const updateBookingStatus = async (orderDesc) => {
+    const updateBookingStatus = async (bookingId) => {
         try {
-            const url = `/bills/${orderDesc}/change-status/`; // Construct the URL using orderDesc
+            const url = `/bills/${bookingId}/change-status/`; // Construct the URL using bookingId
             const response = await api.post(url, {
                 status: 'paid' // Set the status to 'paid'
             }, {
@@ -70,17 +63,16 @@ const PaymentResult = ({
         <div css={containerStyle}>
             {paymentResult ? (
                 <div css={resultContainerStyle}>
-                    <h1 css={titleStyle}>{title}</h1>
+                    <h1 css={titleStyle}>{paymentResult.title}</h1>
                     <div css={resultDetailsStyle}>
-                        <p><strong>Transaction Result:</strong> {result}</p>
-                        <p><strong>Order ID:</strong> {orderId}</p>
-                        <p><strong>Amount:</strong> {amount} VND</p>
-                        <p><strong>Order Description:</strong> {orderDesc}</p>
-                        <p><strong>VNPay Transaction No:</strong> {vnpTransactionNo}</p>
-                        <p><strong>VNPay Response Code:</strong> {vnpResponseCode}</p>
-                        <p><strong>Message:</strong> {msg}</p>
+                        <p><strong>Transaction Result:</strong> {paymentResult.result}</p>
+                        <p><strong>Order ID:</strong> {paymentResult.orderId}</p>
+                        <p><strong>Amount:</strong> {paymentResult.amount} VND</p>
+                        <p><strong>Order Description:</strong> {paymentResult.orderDesc}</p>
+                        <p><strong>VNPay Transaction No:</strong> {paymentResult.vnpTransactionNo}</p>
+                        <p><strong>VNPay Response Code:</strong> {paymentResult.vnpResponseCode}</p>
+                        <p><strong>Message:</strong> {paymentResult.msg}</p>
                         <p css={importantMessageStyle}><strong>Vui lòng chụp lại đến quầy lễ tân để xác nhận thanh toán.</strong></p>
-                        <p><strong>Booking ID:</strong> {bookingId}</p> {/* Display bookingId */}
                     </div>
                 </div>
             ) : (
@@ -112,8 +104,7 @@ const resultContainerStyle = css`
 
 const titleStyle = css`
   font-size: 28px;
-  color: #28a745;
-  margin-bottom: 15px;
+  color: #28a745; /* Change to desired color */
 `;
 
 const resultDetailsStyle = css`

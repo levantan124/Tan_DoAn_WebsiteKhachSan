@@ -1,73 +1,20 @@
-// import React, { useEffect, useState } from 'react';
-// import { useLocation } from 'react-router-dom';
-
-
-// const PaymentResult = () => {
-//     const location = useLocation();
-
-//     const [paymentResult, setPaymentResult] = useState(null);
-
-//     useEffect(() => {
-//         const queryParams = new URLSearchParams(location.search);
-        
-//         const result = queryParams.get('vnp_TransactionStatus');
-
-//         if (result) {
-//             const isSuccess = result === '00';
-//             setPaymentResult({
-//                 title: result === '00' ? "Payment Success" : "Payment Failure",
-//                 result: result === '00' ? "Success" : "Failed",
-//                 orderId: queryParams.get('vnp_TxnRef'),
-//                 amount: queryParams.get('vnp_Amount'),
-//                 orderDesc: queryParams.get('vnp_OrderInfo'),
-//                 vnpTransactionNo: queryParams.get('vnp_TransactionNo'),
-//                 vnpResponseCode: queryParams.get('vnp_ResponseCode'),
-//                 msg: queryParams.get('vnp_Message') || "No message provided"
-//             });
-
-            
-//         }
-//     }, [location.search]);
-
-//     return (
-//         <div className="container" style={{marginTop:"100px", padding:"20px", maxWidth:"500px"}}>
-//             {paymentResult ? (
-//                 <div>
-//                     <h3>{paymentResult.title}</h3>
-//                     <div className="payment-result-details">
-//                         <p><strong>Transaction Result:</strong> {paymentResult.result}</p>
-//                         <p><strong>Order ID:</strong> {paymentResult.orderId}</p>
-//                         <p><strong>Amount:</strong> {paymentResult.amount} VND</p>
-//                         <p><strong>Order Description:</strong> {paymentResult.orderDesc}</p>
-//                         <p><strong>VNPay Transaction No:</strong> {paymentResult.vnpTransactionNo}</p>
-//                         <p><strong>VNPay Response Code:</strong> {paymentResult.vnpResponseCode}</p>
-//                         <p><strong>Message:</strong> {paymentResult.msg}</p>
-//                         <p><strong>VUI LÒNG CHỤP LẠI ĐẾN QUẦY LỄ TÂN XÁC NHẬN ĐÃ THANH TOÁN</strong></p>
-//                     </div>
-//                 </div>
-//             ) : (
-//                 <p>Loading payment result...</p>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default PaymentResult;
-
-/** @jsxImportSource @emotion/react */
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { css } from '@emotion/react';
+import api from '../../configs391/API391'; // Import your API module
+import Cookies from 'react-cookies';
 
-const PaymentResult = () => {
+const PaymentResult = ({ title, result, orderId, amount, orderDesc, vnpTransactionNo, vnpResponseCode, msg, bookingId }) => {
     const location = useLocation();
     const [paymentResult, setPaymentResult] = useState(null);
+    const csrftoken = Cookies.load('csrftoken'); // Load CSRF token
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
-        const result = queryParams.get('vnp_TransactionStatus');
-        if (result) {
-            const isSuccess = result === '00';
+        const transactionStatus = queryParams.get('vnp_TransactionStatus');
+
+        if (transactionStatus) {
+            const isSuccess = transactionStatus === '00';
             setPaymentResult({
                 title: isSuccess ? "Payment Success" : "Payment Failure",
                 result: isSuccess ? "Success" : "Failed",
@@ -78,8 +25,35 @@ const PaymentResult = () => {
                 vnpResponseCode: queryParams.get('vnp_ResponseCode'),
                 msg: queryParams.get('vnp_Message') || "No message provided",
             });
+
+            // Update booking status if payment is successful
+            if (isSuccess) {
+                updateBookingStatus(bookingId);
+            }
         }
-    }, [location.search]);
+    }, [location.search, bookingId]); // Include bookingId as a dependency
+
+    const updateBookingStatus = async (bookingId) => {
+        try {
+            const response = await api.post('/change_booking_status', {
+                booking_id: bookingId,
+                status: 'paid' // Set the status to 'paid'
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            });
+
+            if (response) {
+                console.log('Booking status updated successfully:', response.data);
+            } else {
+                console.error('Failed to update booking status.');
+            }
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+        }
+    };
 
     return (
         <div css={containerStyle}>

@@ -2,8 +2,8 @@ import axios from "axios";
 import moment from "moment";
 import cookie from "react-cookies";
 
-export const BASE_URL = 'https://levantan124.pythonanywhere.com/';
-// export const BASE_URL = 'http://127.0.0.1:8000/';
+// export const BASE_URL = 'https://levantan124.pythonanywhere.com/';
+export const BASE_URL = 'http://127.0.0.1:8000/';
 
 export const formatNS = (dateString) => {
     const [year, month, day] = dateString.split('-');
@@ -24,6 +24,7 @@ export const endpoints = {
     'login-google': '/accounts/google-login/',
     'googleCallbackLogin': `${BASE_URL}google/callback/login`,
     'sale': '/promotions/',
+    'change_booking_status': '/bills/{id}/change-status/',
 
     
     'signup': '/accounts/',
@@ -50,6 +51,7 @@ export const authAPI = () => {
         }
     });
 };
+
 export const authAPI2 = (token) => {
     return axios.create({
         baseURL: BASE_URL,

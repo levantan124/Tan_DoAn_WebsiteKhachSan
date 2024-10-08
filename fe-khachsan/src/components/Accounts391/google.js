@@ -27,9 +27,9 @@ const GoogleButton = () => {
         cursor: pointer;
         font-size: 16px;
         font-weight: bold;
-        margin: 10px 0; /* Adjust margin for better spacing */
-        width: 100%; /* Ensure button is full width */
-        max-width: 100%; /* Limit width of button */
+        margin: 10px 0;
+        width: 100%;
+        max-width: 100%;
 
         &:hover {
             background: #e5533d;

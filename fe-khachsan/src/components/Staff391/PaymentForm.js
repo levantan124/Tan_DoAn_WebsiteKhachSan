@@ -43,6 +43,8 @@ const PaymentForm = () => {
                     'X-CSRFToken': csrftoken
                 }
             });
+            localStorage.setItem('bookingID', booking.id);
+            
 
             if (response) {
                 window.open(response.data.payment_url,'_blank');

@@ -1,25 +1,34 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
-import { useState, useEffect, useContext } from 'react';
-import { authAPI } from '../../configs391/API391';
+import { css } from "@emotion/react";
+import { useState, useEffect, useContext } from "react";
+import { authAPI } from "../../configs391/API391";
 import { MyUserContext } from "../../configs391/Context391";
-import Modal from 'react-modal';
-import { FaStar } from 'react-icons/fa';
+import Modal from "react-modal";
+import { FaStar } from "react-icons/fa";
 
 const BookingHistory = () => {
   const [reservations, setReservations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
   const user = useContext(MyUserContext);
 
   // Fetch reservations
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await authAPI().get('/reservations/get-reservation-guest/');
-        setReservations(response.data);
+        const response = await authAPI().get(
+          "/reservations/get-reservation-guest/"
+        );
+        // Lọc chỉ những reservation có active = true
+      const bookingActive = response.data.filter(
+        (booking) => booking.active === true
+      );
+
+      // Cập nhật state với danh sách reservation active
+      setReservations(bookingActive);
+        // setReservations(response.data);
       } catch (error) {
         console.error("Failed to fetch reservations:", error);
       }
@@ -37,7 +46,7 @@ const BookingHistory = () => {
     setIsModalOpen(false);
     setSelectedReservation(null);
     setRating(0);
-    setFeedback('');
+    setFeedback("");
   };
 
   const handleRating = (rate) => {
@@ -56,6 +65,26 @@ const BookingHistory = () => {
       closeModal();
     } catch (error) {
       console.error("Failed to submit feedback:", error);
+    }
+  };
+
+  const handleBookingCancellation = async (reservationId) => {
+    try {
+      const response = await authAPI().patch(
+        `/reservations/${reservationId}/cancel-reservation/`
+      );
+      const booking = await authAPI().get(
+        `/reservations/get-reservation-guest/`
+      );
+      // Lọc chỉ những reservation có active = true
+      const bookingActive = booking.data.filter(
+        (booking) => booking.active === true
+      );
+
+      // Cập nhật state với danh sách reservation active
+      setReservations(bookingActive);
+    } catch (error) {
+      console.error("Failed to cancel reservation:", error);
     }
   };
 
@@ -83,10 +112,19 @@ const BookingHistory = () => {
                 <td>{new Date(reservation.checkin).toLocaleDateString()}</td>
                 <td>{new Date(reservation.checkout).toLocaleDateString()}</td>
                 <td>
-                  <button onClick={() => openModal(reservation)} css={detailsButtonStyle}>
+                  <button
+                    onClick={() => openModal(reservation)}
+                    css={detailsButtonStyle}
+                  >
                     Đánh giá
                   </button>
-                </td>
+                  <button
+                    onClick={() => handleBookingCancellation(reservation.id)}
+                    css={detailsButtonStyle}
+                  >
+                    Hủy
+                  </button>
+                </td>               
               </tr>
             ))}
           </tbody>
@@ -107,7 +145,7 @@ const BookingHistory = () => {
               <FaStar
                 key={star}
                 size={24}
-                color={star <= rating ? '#ffa500' : '#e4e5e9'}
+                color={star <= rating ? "#ffa500" : "#e4e5e9"}
                 onClick={() => handleRating(star)}
                 css={starStyle}
               />
@@ -123,8 +161,12 @@ const BookingHistory = () => {
             />
           </div>
           <div css={buttonContainerStyle}>
-            <button type="submit" css={submitButtonStyle}>Gửi</button>
-            <button type="button" onClick={closeModal} css={cancelButtonStyle}>Hủy</button>
+            <button type="submit" css={submitButtonStyle}>
+              Gửi
+            </button>
+            <button type="button" onClick={closeModal} css={cancelButtonStyle}>
+              Hủy
+            </button>
           </div>
         </form>
       </Modal>
@@ -152,7 +194,8 @@ const tableStyle = css`
   border-collapse: collapse;
   margin-top: 1rem;
 
-  th, td {
+  th,
+  td {
     border: 1px solid #ddd;
     padding: 0.75rem;
     text-align: center;
@@ -187,18 +230,18 @@ const detailsButtonStyle = css`
 
 const modalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    transform: 'translate(-50%, -50%)',
-    padding: '30px',
-    borderRadius: '12px',
-    width: '90%',
-    maxWidth: '500px',
-    backgroundColor: '#fff',
-    boxShadow: '0 10px 25px rgba(169, 0, 0, 0.5)',
-    alignItems: 'center',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    transform: "translate(-50%, -50%)",
+    padding: "30px",
+    borderRadius: "12px",
+    width: "90%",
+    maxWidth: "500px",
+    backgroundColor: "#fff",
+    boxShadow: "0 10px 25px rgba(169, 0, 0, 0.5)",
+    alignItems: "center",
   },
 };
 

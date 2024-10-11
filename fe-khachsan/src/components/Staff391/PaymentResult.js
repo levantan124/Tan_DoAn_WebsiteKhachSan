@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { css } from '@emotion/react';
-import api from '../../configs391/API391'; // Import your API module
+import {authAPI, api} from '../../configs391/API391'; // Import your API module
 import Cookies from 'react-cookies';
 
 const PaymentResult = () => {
@@ -12,11 +12,12 @@ const PaymentResult = () => {
 
     // Extract booking info from location state
     const booking = location.state?.booking || {}; // Safe access to booking
-
+    console.log(booking)
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const transactionStatus = queryParams.get('vnp_TransactionStatus');
-
+        const savedBookingID = localStorage.getItem('bookingID');
+        console.log(savedBookingID)
         if (transactionStatus) {
             const isSuccess = transactionStatus === '00';
             setPaymentResult({
@@ -31,8 +32,8 @@ const PaymentResult = () => {
             });
 
             // Update booking status if payment is successful
-            if (isSuccess && booking.id) {
-                updateBookingStatus(booking.id); // Use booking.id for the API call
+            if (isSuccess) {
+                updateBookingStatus(savedBookingID); // Use booking.id for the API call
             }
         }
     }, [location.search, booking.id]);
@@ -40,14 +41,15 @@ const PaymentResult = () => {
     const updateBookingStatus = async (bookingId) => {
         try {
             const url = `/bills/${bookingId}/change-status/`; // Construct the URL using bookingId
-            const response = await api.post(url, {
-                status: 'paid' // Set the status to 'paid'
+            const response = await authAPI().post(url, {
+                status: 'paid'
             }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken
                 }
             });
+            console.log(response)
 
             if (response) {
                 console.log('Booking status updated successfully:', response.data);

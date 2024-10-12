@@ -250,7 +250,7 @@ const buttonGroupStyle = css`
 `;
 
 const tableWrapperStyle = css`
-  width: 100%;
+  width: 1000px;
   max-width: 1000px;
   background-color: #fff;
   border-radius: 12px;

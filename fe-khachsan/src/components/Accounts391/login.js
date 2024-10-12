@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { css } from '@emotion/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,8 @@ import Signup from './singup'; // Fixed the import from 'singup' to 'Signup'
 import GoogleButton from './google';
 import Captcha from "./captcha"
 import APIs, { endpoints, authAPI } from '../../configs391/API391';
+import { MyDispatchContext } from '../../configs391/Context391';
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +20,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
+  const dispatch = useContext(MyDispatchContext);
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -58,7 +62,10 @@ const Login = () => {
         cookie.save('token', res.data.access_token);
         let userdata = await authAPI().get(endpoints['current_user']);
         cookie.save('user', userdata.data);
-
+        dispatch({
+          type: "login",
+          payload: userdata.data
+      });
         // Redirect based on role
         if (userdata.data.role === 2) {
           nav('/staff');

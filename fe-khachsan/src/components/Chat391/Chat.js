@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState } from 'react';
 import { css } from '@emotion/react';
+import { HiOutlineChatBubbleBottomCenterText } from "react-icons/hi2";
 
 const ChatPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,7 @@ const ChatPopup = () => {
   const buttonStyle = css`
     position: fixed;
     bottom: 11rem;
-    right: 28px; 
+    right: 29px; 
     padding: 8px;
     border-radius: 50%;
     border: 2px solid black; /* Thêm viền đen */
@@ -39,8 +40,8 @@ const ChatPopup = () => {
     z-index: 1001; /* Đảm bảo nút nằm trên các thành phần khác */
 
     &:hover {
-      background-color: #FF6347; /* Màu đỏ khi hover */
-      transform: scale(1.1); /* Phóng to một chút khi hover */
+      background-color: #FF6347;
+      transform: scale(1.1); 
     }
 
     &:focus {
@@ -74,7 +75,7 @@ const ChatPopup = () => {
       {/* Ẩn nút khi popup mở */}
       {!isOpen && (
         <button onClick={togglePopup} css={buttonStyle}>
-          Chat Bot
+        <HiOutlineChatBubbleBottomCenterText />
         </button>
       )}
       <div css={popupStyle}>

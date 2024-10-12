@@ -9,6 +9,7 @@ import Feedback391 from './feeback';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { MyUserContext } from '../../configs391/Context391';
+import moment from 'moment';
 
 const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/vantan/';
 const DEFAULT_IMAGE_URL = `${CLOUDINARY_BASE_URL}image/upload/v1723024658/rye5zrow3vckdxfp7f0k.jpg`;
@@ -37,12 +38,21 @@ const RoomDetails = () => {
 
     const fetchRoomImages = async () => {
       try {
-        const response = await authAPI().get(`/room-images/${id}/`);
-        setRoomImages(response.data);
+        const params = { room_id: id }; // Tạo đối tượng JSON với room_id
+        const queryString = new URLSearchParams(params).toString(); // Chuyển đổi thành chuỗi truy vấn
+      
+          const response = await authAPI().get(`/room-images/?${queryString}`, {
+            headers: {
+              'Content-Type': 'application/json', // Thường không cần cho GET
+            },
+          });
+          console.log(response.data)
+        setRoomImages(response.data[0]);
       } catch (error) {
         console.error("Failed to fetch room images:", error);
       }
     };
+    
 
     fetchRoomDetails();
     fetchRoomImages();
@@ -61,18 +71,46 @@ const RoomDetails = () => {
     fetchRoomTypes();
   }, []);
 
-  useEffect(() => {
-  if (checkInDate && numberOfNights > 0) {
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkIn); // Khởi tạo checkOut từ checkIn
+//   useEffect(() => {
+//   if (checkInDate && numberOfNights > 0) {
+//     const checkIn = new Date(checkInDate);
+//     const checkOut = new Date(checkIn); // Khởi tạo checkOut từ checkIn
 
-    // Tăng số ngày ở
-    checkOut.setDate(checkOut.getDate() + numberOfNights);
+//     // Tăng số ngày ở
+//     checkOut.setDate(checkIn.getDate() + numberOfNights);
+//     checkOut.setMonth(checkIn.getMonth())
+//     checkOut.setFullYear(checkIn.getFullYear())
+//     const checkout=checkOut.toISOString().split('T')[0]
+//     const checkin= checkIn.getDate()
+//     console.log("num of nights: ", numberOfNights)
+//     console.log("checkOut: ", checkout )
+//     console.log("check in get date",checkin)
+//     console.log(checkOutDate)
+
+//     // Cập nhật state cho checkOutDate
+//     setCheckOutDate(checkOut.toISOString().split('T')[0]);
+//   }
+// }, [checkInDate, numberOfNights]);
+useEffect(() => {
+  if (checkInDate && numberOfNights > 0) {
+    const checkIn = moment(checkInDate, 'YYYY-MM-DD');
+    if (numberOfNights > 31) {
+      alert("Số ngày lưu trú không được vượt quá 31 ngày.");
+      return;
+    }
+
+    // Sử dụng moment để tính toán ngày checkOut
+    const checkOut = checkIn.clone().add(numberOfNights, 'days');  // clone() để giữ nguyên giá trị của checkIn
     
-    // Cập nhật state cho checkOutDate
-    setCheckOutDate(checkOut.toISOString().split('T')[0]);
+    // Chuyển đổi định dạng ngày về chuỗi theo định dạng YYYY-MM-DD
+    const checkoutDate = checkOut.format('YYYY-MM-DD');
+
+    // Cập nhật state với ngày check-out mới
+    setCheckOutDate(checkoutDate);
   }
 }, [checkInDate, numberOfNights]);
+
+
 
   const calculatePayment = useCallback(() => {
     const roomType = roomTypes.find(rt => rt.id === room?.room_type);

@@ -41,7 +41,7 @@ function Admin() {
 
 const containerStyle = css`
   max-width: 1000px;
-  margin: 9rem auto;
+  margin: 1rem auto;
   padding: 2rem;
   background-color: #f9f9f9;
   border-radius: 1rem;

@@ -3,11 +3,12 @@ import { css } from '@emotion/react';
 import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import cookie from 'react-cookies';
-import { MyUserContext } from "../../configs391/Context391";
 import { FaArrowUp, FaFacebookF, FaInstagram, FaPhoneAlt, FaEnvelope } from 'react-icons/fa'; 
 import { MdOutlineLocalGroceryStore } from "react-icons/md";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import Notification from '../Main391/notification';
+import { MyDispatchContext, MyUserContext } from '../../configs391/Context391'
+
 
 
 const NavBar = () => {
@@ -16,6 +17,8 @@ const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showScrollTopButton, setShowScrollTopButton] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const dispatch = useContext(MyDispatchContext)
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,6 +40,7 @@ const NavBar = () => {
   const handleLogout = () => {
     cookie.remove("token");
     cookie.remove("user");
+    dispatch({ type: 'logout' });
     navigate("/", { state: { message: "You have been logged out!" } });
   };
 

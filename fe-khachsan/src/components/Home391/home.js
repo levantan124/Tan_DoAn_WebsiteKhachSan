@@ -4,7 +4,7 @@ import React, { useEffect, useContext, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import cookie from "react-cookies";
 import { MyDispatchContext } from '../../configs391/Context391';
-import { authAPI, endpoints } from "../../configs391/API391";
+import { authAPI2,authAPI, endpoints } from "../../configs391/API391";
 import NavBar from "../Navbar391/navbar";
 import Header from "../Main391/header";
 import Popular from "../Main391/popular";
@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { MyUserContext } from '../../configs391/Context391';
 import ChatRoom391 from "../Chat391/ChatRoom";
 import ChatWebSocket391 from "../Chat391/ChatWebSoket";
+import ChatPopup from '../Chat391/Chat';
 
 const Home = () => {
     const location = useLocation();
@@ -101,12 +102,13 @@ const Home = () => {
                 cookie.save("token", token);
 
                 try {
-                    let userdata = await authAPI(token).get(endpoints['current_user']);
+                    let userdata = await authAPI2(token).get(endpoints['current_user']);
                     cookie.save('user', userdata.data);
                     dispatch({
                         type: "login",
                         payload: userdata.data
                     });
+                    window.location.reload();
                 } catch (error) {
                     console.error("Lỗi khi lấy thông tin người dùng:", error);
                 }
@@ -207,6 +209,7 @@ const Home = () => {
                             />
                         </div>
                     )}
+                <ChatPopup /> 
                 <motion.div 
                     className="fade-in"
                     data-component="footer"

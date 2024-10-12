@@ -1,7 +1,12 @@
-import React from "react";
-import './App.css';
+import React, {useReducer} from "react";
+import "./App.css";
 import cookie from "react-cookies";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar391/navbar";
 import Header391 from "./components/Main391/header";
 import Popular391 from "./components/Main391/popular";
@@ -11,94 +16,117 @@ import Footer391 from "./components/Footer391/footer";
 import LogIn391 from "./components/Accounts391/login";
 import Signup391 from "./components/Accounts391/singup";
 import Info391 from "./components/Navbar391/info";
-import RoomDetails391 from './components/Main391/roomdetails';
-import BookingHistory391 from "./components/Main391/bookinghistory"
+import RoomDetails391 from "./components/Main391/roomdetails";
+import BookingHistory391 from "./components/Main391/bookinghistory";
 import Cart391 from "./components/Main391/cart";
 import Sale from "./components/Main391/sale";
 
 import Home391 from "./components/Home391/home";
-import ChatPopup from "./components/Chat391/Chat";
 
 // STAFF
-import Staff391 from "./components/Staff391/Staff"
-import ServiceList391 from "./components/Staff391/ServiceList391"
-import ReservationList391 from "./components/Staff391/ReservationList391"
-import AddService391 from "./components/Staff391/AddService391"
-import BillList391 from "./components/Staff391/BillList391"
-import ExportBill391 from "./components/Staff391/ExportBill391"
+import Staff391 from "./components/Staff391/Staff";
+import ServiceList391 from "./components/Staff391/ServiceList391";
+import ReservationList391 from "./components/Staff391/ReservationList391";
+import AddService391 from "./components/Staff391/AddService391";
+import BillList391 from "./components/Staff391/BillList391";
+import ExportBill391 from "./components/Staff391/ExportBill391";
 import PaymentForm391 from "./components/Staff391/PaymentForm";
 import PaymentResult391 from "./components/Staff391/PaymentResult";
 import ListEmptyRoom391 from "./components/Staff391/ListEmptyRoom";
 
 //ADMIN
-import Admin391 from "./components/Admin391/admin"
-import ExistingRooms391 from "./components/Admin391/Room/existingrooms"
-import ExistingRoomTypes391 from "./components/Admin391/Roomtype/existingroomtypes"
-import ExistingServices391 from "./components/Admin391/Service/existingservices"
-import ExistingAccounts391 from "./components/Admin391/Accounts/existingaccounts"
-import ExistingReservations391 from "./components/Admin391/Reservations/existingreservations"
+import Admin391 from "./components/Admin391/admin";
+import ExistingRooms391 from "./components/Admin391/Room/existingrooms";
+import ExistingRoomTypes391 from "./components/Admin391/Roomtype/existingroomtypes";
+import ExistingServices391 from "./components/Admin391/Service/existingservices";
+import ExistingAccounts391 from "./components/Admin391/Accounts/existingaccounts";
+import ExistingReservations391 from "./components/Admin391/Reservations/existingreservations";
 import ExistingBills391 from "./components/Admin391/Bills/existingbills";
-import { MyUserContext } from "./configs391/Context391";
+import { MyUserContext, MyDispatchContext } from "./configs391/Context391";
+import MyUserReducer from './components/Myreducer/MyUserReducer';
 
 const App = () => {
-  const user = cookie.load("user") || null;
-  
+  // const user = cookie.load("user") || null;
+  const [user, dispatch] = useReducer(
+    MyUserReducer,
+    cookie.load("user") || null
+  );
+
   return (
     <MyUserContext.Provider value={user}>
-      <Router>
-      <Navbar />
-      <ChatPopup />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home391 />} />
-            {/* <Route path="/" element={<Popular391 />} /> */}
-            <Route path="/login" element={<LogIn391 />} />
-            <Route path="/signup" element={<Signup391 />} />
-            <Route path="/info" element={<Info391 />} />
-            <Route path="/booking-history" element={<BookingHistory391 />} />
-            <Route path="/room/:id" element={<RoomDetails391 />} />
-            <Route path="/cart" element={<Cart391 />} />
-            <Route path="/sale" element={<Sale />} />
-    
-            {/* STAFF */}
-            <Route path="/staff" element={<Staff391 />} />
-            <Route path="/services-list" element={<ServiceList391 />} />
-            <Route path="/reservations-list" element={<ReservationList391 />} />
-            <Route path="/list-empty-room" element={<ListEmptyRoom391 />} />
-            <Route path="/bill/:id" element={<ExportBill391 />} />
-            <Route path="/add-services/:id" element={<AddService391 />} />
-            <Route path="/bill-list" element={<BillList391 />} />
-            <Route path="/payment" element={<PaymentForm391 />} />
-            <Route path="/payment-return" element={<PaymentResult391 />} />
-            <Route path="/bill/:id" element={<ExportBill391 />} />
-           
-            
-            <Route path="/staff" element={<Staff391 />}>
-              <Route path="reservations-list" element={<ReservationList391 />} />
-              <Route path="services-list" element={<ServiceList391 />} />
-              <Route path="list-empty-room" element={<ListEmptyRoom391 />} />
-              <Route path="bill-list" element={<BillList391 />} />
-            </Route>
+      <MyDispatchContext.Provider value={dispatch}>
+        <Router>
+          <Navbar />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home391 />} />
+              {/* <Route path="/" element={<Popular391 />} /> */}
+              <Route path="/login" element={<LogIn391 />} />
+              <Route path="/signup" element={<Signup391 />} />
+              <Route path="/info" element={<Info391 />} />
+              <Route path="/booking-history" element={<BookingHistory391 />} />
+              <Route path="/room/:id" element={<RoomDetails391 />} />
+              <Route path="/cart" element={<Cart391 />} />
+              <Route path="/sale" element={<Sale />} />
 
-            {/* ADMIN */}
-            <Route path="/admin" element={<Admin391 />}>
-              <Route path="existing-rooms" element={<ExistingRooms391 />} />
-              <Route path="existing-roomtypes" element={<ExistingRoomTypes391 />} />
-              <Route path="existing-services" element={<ExistingServices391 />} />
-              <Route path="existing-accounts" element={<ExistingAccounts391 />} />
-              <Route path="existing-reservations" element={<ExistingReservations391 />} />
-              <Route path="existing-bills" element={<ExistingBills391 />} />
-            </Route>
-          </Routes>
-        </Layout>
-      </Router>
+              {/* STAFF */}
+              <Route path="/staff" element={<Staff391 />} />
+              <Route path="/services-list" element={<ServiceList391 />} />
+              <Route
+                path="/reservations-list"
+                element={<ReservationList391 />}
+              />
+              <Route path="/list-empty-room" element={<ListEmptyRoom391 />} />
+              <Route path="/bill/:id" element={<ExportBill391 />} />
+              <Route path="/add-services/:id" element={<AddService391 />} />
+              <Route path="/bill-list" element={<BillList391 />} />
+              <Route path="/payment" element={<PaymentForm391 />} />
+              <Route path="/payment-return" element={<PaymentResult391 />} />
+              <Route path="/bill/:id" element={<ExportBill391 />} />
+
+              <Route path="/staff" element={<Staff391 />}>
+                <Route
+                  path="reservations-list"
+                  element={<ReservationList391 />}
+                />
+                <Route path="services-list" element={<ServiceList391 />} />
+                <Route path="list-empty-room" element={<ListEmptyRoom391 />} />
+                <Route path="bill-list" element={<BillList391 />} />
+              </Route>
+
+              {/* ADMIN */}
+              <Route path="/admin" element={<Admin391 />}>
+                <Route path="existing-rooms" element={<ExistingRooms391 />} />
+                <Route
+                  path="existing-roomtypes"
+                  element={<ExistingRoomTypes391 />}
+                />
+                <Route
+                  path="existing-services"
+                  element={<ExistingServices391 />}
+                />
+                <Route
+                  path="existing-accounts"
+                  element={<ExistingAccounts391 />}
+                />
+                <Route
+                  path="existing-reservations"
+                  element={<ExistingReservations391 />}
+                />
+                <Route path="existing-bills" element={<ExistingBills391 />} />
+              </Route>
+            </Routes>
+          </Layout>
+        </Router>
+      </MyDispatchContext.Provider>
     </MyUserContext.Provider>
   );
 };
 
 const Layout = ({ children }) => {
   const { pathname } = useLocation();
-  const isLoginOrSignupPage = pathname === "/login" || pathname === "/signup" || pathname === "/info" ;
+  const isLoginOrSignupPage =
+    pathname === "/login" || pathname === "/signup" || pathname === "/info";
 
   return (
     <>

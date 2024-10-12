@@ -60,7 +60,7 @@ const Popular = () => {
 
   // Hàm tính điểm trung bình
   const calculateAverageRating = (feedbacks) => {
-    if (!feedbacks.length) return 0;
+    if (!feedbacks.length) return 5;
     const total = feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0);
     return Math.round(total / feedbacks.length); // Làm tròn số nguyên
   };

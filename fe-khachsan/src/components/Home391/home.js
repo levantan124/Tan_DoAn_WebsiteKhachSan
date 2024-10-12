@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import React, { useEffect, useContext, useRef, useState } from "react";  
 import { useLocation, useNavigate } from "react-router-dom";
 import cookie from "react-cookies";
@@ -162,7 +164,7 @@ const Home = () => {
                 >
                     <Header />
                 </motion.div>
-                <Sale />
+                {/* <Sale /> */}
                 <motion.div 
                     className="fade-in"
                     data-component="popular"
@@ -190,16 +192,10 @@ const Home = () => {
                 >
                     <Reward />
                 </motion.div>
-                <motion.div 
-                    className="fade-in"
-                    data-component="footer"
-                    initial={{ opacity: 0, y: -50 }} 
-                    animate={isVisible.footer ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }} 
-                    transition={{ duration: 0.5 }}
-                >
-
-                    <button onClick={openChatBox} className="p-3 text-orange-700 hover:text-red-700 hover:underline cursor-pointer">
-                        Chat with Receptionist
+                <button onClick={openChatBox} css={chatButtonStyle}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h10a2 2 0 012 2v7m0 4l4-4" />
+                        </svg>
                     </button>
                     {chatBoxOpen && (
                         <div id="chat" className='fixed right-2 bottom-2 p-4 bg-orange-600 border border-gray-300 rounded-xl'>
@@ -211,11 +207,51 @@ const Home = () => {
                             />
                         </div>
                     )}
+                <motion.div 
+                    className="fade-in"
+                    data-component="footer"
+                    initial={{ opacity: 0, y: -50 }} 
+                    animate={isVisible.footer ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }} 
+                    transition={{ duration: 0.5 }}
+                >
                     <Footer />
                 </motion.div>
             </div>
         </section>
-    );
+    );  
 }
+
+const chatButtonStyle = css`
+  position: fixed;
+  bottom: 7rem;
+  right: 28px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #FFA500;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-color: #FF6347; /* Màu đỏ khi hover */
+    transform: scale(1.1); /* Phóng to một chút khi hover */
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 99, 71, 0.3);
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+`;
+
 
 export default Home;

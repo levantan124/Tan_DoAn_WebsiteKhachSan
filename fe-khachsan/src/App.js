@@ -17,7 +17,7 @@ import Cart391 from "./components/Main391/cart";
 import Sale from "./components/Main391/sale";
 
 import Home391 from "./components/Home391/home";
-
+import ChatPopup from "./components/Chat391/Chat";
 
 // STAFF
 import Staff391 from "./components/Staff391/Staff"
@@ -42,11 +42,12 @@ import { MyUserContext } from "./configs391/Context391";
 
 const App = () => {
   const user = cookie.load("user") || null;
-
+  
   return (
     <MyUserContext.Provider value={user}>
       <Router>
       <Navbar />
+      <ChatPopup />
         <Layout>
           <Routes>
             <Route path="/" element={<Home391 />} />

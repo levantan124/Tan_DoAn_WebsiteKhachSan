@@ -1,7 +1,8 @@
+/** @jsxImportSource @emotion/react */
+import { css } from "@emotion/react";
 import React, { useState, useEffect } from "react";
-// import avatar_default from '../assets/default_avatar.png';
 
-const ChatRoom = ({ currentChatUser, messages, sendMessage,  closeChatBox }) => {
+const ChatRoom = ({ currentChatUser, messages, sendMessage, closeChatBox }) => {
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(true);
 
@@ -13,7 +14,7 @@ const ChatRoom = ({ currentChatUser, messages, sendMessage,  closeChatBox }) => 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 600px)");
     const handleMediaQueryChange = (event) => {
-      setIsOpen(!event.matches); // Close if screen is smaller than 600px
+      setIsOpen(!event.matches); 
     };
 
     mediaQuery.addEventListener("change", handleMediaQueryChange);
@@ -27,73 +28,137 @@ const ChatRoom = ({ currentChatUser, messages, sendMessage,  closeChatBox }) => 
   if (!currentChatUser || !isOpen) return null;
 
   return (
-    <div className="fixed bottom-0 right-0 w-3/12 bg-white shadow-lg rounded-t-lg z-10 mr-5  border-orange-200">
-      <div className="flex justify-between items-center bg-sky-300  p-3 rounded-t-lg">
-        <div className="flex">
+    <div css={chatPopupStyle}>
+      <div css={headerStyle}>
+        <div className="flex items-center">
           <img
-            src={currentChatUser?.avatar ? currentChatUser?.avatar : ""}
+            src={currentChatUser?.avatar || ""}
             alt="Avatar"
-            className="w-8 h-8 rounded-full mx-2"
+            style={{ width: 30, height: 30, borderRadius: "50%", marginRight: 10 }}
           />
-          <h2 className="text-lg font-bold">{currentChatUser.username}</h2>
+          <span>{currentChatUser?.username}</span>
         </div>
-        <button onClick={closeChatBox} className="text-orange-700 text-xl hover:bg-red-50 px-2">
-          X
-        </button>
+        <button onClick={closeChatBox} css={closeButtonStyle}>×</button>
       </div>
-      <div className="flex flex-col mt-4 h-64 overflow-y-scroll pl-2">
+      <div css={contentStyle}>
         {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`mb-2 flex items-start ${msg.sender_id === currentChatUser.id ? "self-start" : "self-end"}`}
-          >
-            {msg.sender_id === currentChatUser.id ? (
-              <>
-                <img
-                  src={msg.sender?.avatar ? msg.sender.avatar : ""}
-                  alt="Avatar"
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-                <div className={`py-1 px-3 rounded-lg bg-green-100`}>
-                  <p className="text-sm">{msg.message}</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className={`py-1 px-3 rounded-lg bg-gray-200`}>
-                  <p className="text-sm">{msg.message}</p>
-                </div>
-                <img
-                  src={msg.sender?.avatar ? msg.sender.avatar : ""}
-                  alt="Avatar"
-                  className="w-8 h-8 rounded-full ml-2"
-                />
-              </>
-            )}
+          <div key={index} style={{ marginBottom: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: msg.sender_id === currentChatUser.id ? "flex-start" : "flex-end",
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: msg.sender_id === currentChatUser.id ? "#e0f7fa" : "#f1f1f1",
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  maxWidth: "80%",
+                }}
+              >
+                {msg.message}
+              </div>
+            </div>
           </div>
         ))}
       </div>
-      <div className="mt-2 flex pl-2">
+      <div css={footerStyle}>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="w-[80%] pl-2 border border-gray-300 rounded-lg mr-2"
+          css={inputStyle}
           placeholder="Type a message"
         />
-        <button
-          onClick={handleSend}
-          className="bg-blue-400 hover:bg-blue-800 text-white p-2 rounded-lg"
-        >
+        <button onClick={handleSend} css={sendButtonStyle}>
           Gửi
         </button>
       </div>
-
-      
     </div>
-
-    
   );
 };
+
+const chatPopupStyle = css`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  max-width: 90%;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+`;
+
+
+  const headerStyle = css`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #00bfff;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+  `;
+
+  const contentStyle = css`
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+`;
+
+
+  const footerStyle = css`
+    padding: 10px;
+    border-top: 1px solid #f1f1f1;
+    display: flex;
+    background-color: white;
+  `;
+
+
+  const inputStyle = css`
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 5px;
+  `;
+
+  const sendButtonStyle = css`
+    background-color: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  `;
+
+  const closeButtonStyle = css`
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: #333;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #f1f1f1;
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
+
 
 export default ChatRoom;

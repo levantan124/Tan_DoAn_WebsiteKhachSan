@@ -313,7 +313,7 @@ const switchLinkStyles = css`
   color: #ff6347;
   font-weight: bold;
   text-decoration: none;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
   &:hover {
     text-decoration: underline;
   }

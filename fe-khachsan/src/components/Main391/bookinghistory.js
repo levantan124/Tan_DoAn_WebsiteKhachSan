@@ -69,6 +69,11 @@ const BookingHistory = () => {
   };
 
   const handleBookingCancellation = async (reservationId) => {
+    const confirmCancellation = window.confirm("Bạn có chắc chắn muốn hủy phòng này không?");
+  
+    if (!confirmCancellation) {
+      return; // Nếu người dùng không xác nhận, thoát khỏi hàm
+    }
     try {
       const response = await authAPI().patch(
         `/reservations/${reservationId}/cancel-reservation/`
@@ -122,7 +127,7 @@ const BookingHistory = () => {
                     onClick={() => handleBookingCancellation(reservation.id)}
                     css={detailsButtonStyle}
                   >
-                    Hủy
+                    Hủy phòng
                   </button>
                 </td>               
               </tr>

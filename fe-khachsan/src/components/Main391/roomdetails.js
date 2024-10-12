@@ -22,7 +22,7 @@ const RoomDetails = () => {
   const [checkInDate, setCheckInDate] = useState('');
   const [numberOfNights, setNumberOfNights] = useState(1);
   const [checkOutDate, setCheckOutDate] = useState('');
-  const [averageRating, setAverageRating] = useState(0); // Added state for average rating
+  const [averageRating, setAverageRating] = useState(5); // Added state for average rating
   const user = useContext(MyUserContext);
 
   useEffect(() => {
@@ -62,12 +62,17 @@ const RoomDetails = () => {
   }, []);
 
   useEffect(() => {
-    if (checkInDate && numberOfNights > 0) {
-      const checkIn = new Date(checkInDate);
-      const checkOut = new Date(checkIn.setDate(checkIn.getDate() + numberOfNights));
-      setCheckOutDate(checkOut.toISOString().split('T')[0]);
-    }
-  }, [checkInDate, numberOfNights]);
+  if (checkInDate && numberOfNights > 0) {
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkIn); // Khởi tạo checkOut từ checkIn
+
+    // Tăng số ngày ở
+    checkOut.setDate(checkOut.getDate() + numberOfNights);
+    
+    // Cập nhật state cho checkOutDate
+    setCheckOutDate(checkOut.toISOString().split('T')[0]);
+  }
+}, [checkInDate, numberOfNights]);
 
   const calculatePayment = useCallback(() => {
     const roomType = roomTypes.find(rt => rt.id === room?.room_type);

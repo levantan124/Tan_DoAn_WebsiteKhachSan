@@ -17,7 +17,7 @@ const PaymentForm = () => {
         order_type: 'topup',
         order_id: new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14),
         amount: payment || 10000,
-        order_desc: `Thanh toan don dat phong ${booking.id} thoi gian: ${new Date().toLocaleString()}`,
+        order_desc: `Thanh toán đơn đặt phòng ${booking.id} thời gian: ${new Date().toLocaleString()}`,
         bank_code: '',
         language: 'vn',
         reservation: booking.id,
@@ -44,10 +44,9 @@ const PaymentForm = () => {
                 }
             });
             localStorage.setItem('bookingID', booking.id);
-            
 
             if (response) {
-                window.open(response.data.payment_url,'_blank');
+                window.open(response.data.payment_url, '_blank');
             } else {
                 console.error('Payment URL is not available in response.');
             }
@@ -77,7 +76,7 @@ const PaymentForm = () => {
     return (
         <div css={containerStyle}>
             <img src="/path/to/vnpay-logo.png" alt="VNPAY Logo" css={logoStyle} />
-            <h3>Thanh toán VNPAY</h3>
+            <h3 css={titleStyle}>Thanh toán VNPAY</h3>
             <form onSubmit={handleSubmit}>
                 <div css={formGroupStyle}>
                     <label htmlFor="booking_id">Mã xác nhận</label>
@@ -204,49 +203,54 @@ const PaymentForm = () => {
 
 const containerStyle = css`
   width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const logoStyle = css`
   display: block;
   margin: 0 auto 20px;
-  width: 150px; /* Thay đổi kích thước logo nếu cần */
+  width: 150px;
+`;
+
+const titleStyle = css`
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
 `;
 
 const formGroupStyle = css`
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 `;
 
 const inputStyle = css`
   width: 100%;
   padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 16px;
-
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
   &:focus {
-    border-color: #007bff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
   }
 `;
 
 const buttonStyle = css`
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
-
+  transition: background-color 0.3s;
   &:hover {
-    background-color: #0056b3;
+      background-color: #0056b3;
   }
 `;
 

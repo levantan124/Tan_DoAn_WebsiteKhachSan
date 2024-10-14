@@ -59,6 +59,7 @@ const calculateTotalAmount = (bills) => {
               <th>Ngày cập nhật</th>
               <th>Thành tiền</th>
               <th>Phiếu đặt phòng</th>
+              <th>Thanh toán</th>
             </tr>
           </thead>
           <tbody>
@@ -69,6 +70,7 @@ const calculateTotalAmount = (bills) => {
                 <td>{new Date(bill.updated_date).toLocaleString()}</td>
                 <td>{formatPrice(bill.total_amount)}</td>
                 <td>{bill.reservation}</td>
+                <td>{bill.status}</td>
               </tr>
             ))}
           </tbody>

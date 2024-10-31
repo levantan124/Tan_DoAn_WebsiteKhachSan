@@ -41,6 +41,8 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
         if self.action in ['list', 'get_current_user', 'partial_update', 'account_is_valid', 'google_login']:
             # permission_classes = [IsAuthenticated]
             return [permissions.AllowAny()]
+        elif self.action in ['password_status', 'change_password', 'set_password']:
+            return [permissions.IsAuthenticated()]
         elif self.action in ['create']:
             if isinstance(self.request.user, AnonymousUser):
                 if self.request.data and (self.request.data.get('role') == 3):
@@ -102,6 +104,55 @@ class Tan_AccountViewSet(viewsets.ViewSet, generics.CreateAPIView,generics.ListA
                 return Response(data={'is_valid': "True", 'message': 'Email đã tồn tại'}, status=status.HTTP_200_OK)
 
         return Response(data={'is_valid': "False"}, status=status.HTTP_200_OK)
+
+        # Check tài khoản có mật khẩu chưa
+
+    @action(detail=False, methods=['get'])
+    def password_status(self, request):
+        user = request.user
+
+        if user.is_authenticated:
+            # Kiểm tra xem người dùng có mật khẩu không
+            has_password = user.password and user.password.startswith('pbkdf2_sha256$')
+            message = 'Password exists' if has_password else 'Password not set'
+            return Response({'message': message}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    @action(detail=False, methods=['post'])
+    def set_password(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        new_password = request.data.get('newPassword')
+        if not new_password:
+            return Response({'detail': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password set successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        old_password = request.data.get('oldPassword')
+        new_password = request.data.get('newPassword')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Old password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not new_password:
+            return Response({'detail': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password changed successfully'}, status=status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='google-login', detail=False)
     def google_login(self, request):
@@ -355,12 +406,18 @@ class Tan_RoomImageViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         return [permissions.IsAuthenticated()]
 
     def list(self, request, *args, **kwargs):
-        room_id = request.query_params.get('room_id')
+        room_id = request.query_params.get('room_id')  # Lấy room_id từ body của request
         if not room_id:
             return Response({'detail': 'room_id parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Lấy hình ảnh của phòng theo room_id
         room_images = RoomImage.objects.filter(room_id=room_id)
         serializer = self.get_serializer(room_images, many=True)
+
+        # Nếu không tìm thấy hình ảnh nào, trả về thông báo
+        if not room_images:
+            return Response({'detail': 'No images found for this room.'}, status=status.HTTP_404_NOT_FOUND)
+
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -449,14 +506,14 @@ class Tan_ReservationViewSet(viewsets.ViewSet, generics.ListCreateAPIView, gener
                 return [permissions.IsAuthenticated()]
             else:
                 raise PermissionDenied("Only receptionists can access this endpoint.")
-        elif self.action in ['partial_update', 'update']:
+        elif self.action in ['partial_update', 'update', 'cancel_reservation']:
             if self.request.user.is_authenticated and self.request.user.role in [Account.Roles.KHACHHANG, Account.Roles.LETAN]:
                 return [permissions.IsAuthenticated()]
             else:
                 raise PermissionDenied("Only the customer or receptionists can partially update this reservation.")
         elif self.action == 'get_reservation_guest':
             return [permissions.IsAuthenticated(), perm.Tan_IsKhachHang()]
-        elif self.action == 'cancel_reservation':
+        elif self.action == 'deactivate_reservation':
             if self.request.user.is_authenticated and self.request.user.role == Account.Roles.LETAN:
                 return [permissions.IsAuthenticated()]
             else:

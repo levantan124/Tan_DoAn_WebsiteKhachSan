@@ -16,10 +16,11 @@ cloudinary.config(
 )
 
 # VNPay
-VNPAY_TMN_CODE = os.getenv("VNPAY_TMN_CODE")
-VNPAY_HASH_SECRET_KEY = os.getenv("VNPAY_HASH_SECRET_KEY")
+VNPAY_TMN_CODE="DQV3LKUC"
+#VNPAY_HASH_SECRET_KEY="DAH7V15SRH305G20GWWJYWGBUBRDH1Z5"
+VNPAY_HASH_SECRET_KEY="E2I2MKHBGT6P76QJ15WI6HEM82S1IMH8"
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-VNPAY_RETURN_URL = 'https://tanhotel391.vercel.app/payment-result'
+VNPAY_RETURN_URL = 'http://localhost:3000/payment-return'
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Google OAuth

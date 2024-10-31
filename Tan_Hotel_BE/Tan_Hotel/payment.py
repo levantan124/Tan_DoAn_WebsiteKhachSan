@@ -53,10 +53,8 @@ class PaymentViewSet(viewsets.ViewSet):
 
             vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
             vnp.requestData['vnp_IpAddr'] = ipaddr
-            if 'localhost' in request.build_absolute_uri():
-                vnp.requestData['vnp_ReturnUrl'] = 'http://localhost:3000/payment-return'
-            else:
-                vnp.requestData['vnp_ReturnUrl'] = 'https://tanhotel391.vercel.app/payment-return'
+            vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
+                # vnp.requestData['vnp_ReturnUrl'] = 'https://tanhotel391.vercel.app/payment-return'
 
             # vnp.requestData['vnp_ReturnUrl'] = settings.VNPAY_RETURN_URL
             vnpay_payment_url = vnp.get_payment_url(settings.VNPAY_PAYMENT_URL, settings.VNPAY_HASH_SECRET_KEY)
@@ -75,6 +73,7 @@ class PaymentViewSet(viewsets.ViewSet):
             invoice_serializer = Tan_BillCreateSerializer(data=invoice_data)
             if invoice_serializer.is_valid():
                 invoice_serializer.save()
+
                 return Response({'payment_url': vnpay_payment_url}, status=status.HTTP_200_OK)
             else:
                 return Response(invoice_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -132,6 +131,42 @@ class PaymentViewSet(viewsets.ViewSet):
                 "result": ""
             }, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=['get'])
+    def get_all_payments(self, request):
+        # Lấy tất cả các bản ghi từ model Bill
+        bills = Bill.objects.all()
+        # Serialize dữ liệu hóa đơn
+        bills_data = []
+        for bill in bills:
+            # Serialize thông tin hóa đơn
+            bill_serializer = Tan_BillCreateSerializer(bill)
+
+            # Lấy thông tin reservation từ hóa đơn
+            reservation = bill.reservation  # Giả sử Bill có trường reservation là ForeignKey
+            if reservation:
+                # Lấy thông tin chi tiết từ reservation
+                reservation_info = {
+                    'id': reservation.id,
+                    'guest_name': reservation.guest.name,  # Lấy tên khách từ tài khoản
+                    'room_names': ", ".join(reservation.room.values_list('name', flat=True)),  # Lấy tên phòng
+                    'book_date': reservation.book_date,
+                    'checkin': reservation.checkin,
+                    'checkout': reservation.checkout,
+                    'status_checkin': reservation.status_checkin,
+                    'check_in_date': reservation.check_in_date,
+                }
+            else:
+                reservation_info = None
+
+            # Thêm dữ liệu hóa đơn và thông tin reservation vào danh sách
+            bills_data.append({
+                'bill_info': bill_serializer.data,
+                'reservation_info': reservation_info,
+            })
+
+        # Trả về phản hồi
+        return Response(bills_data, status=status.HTTP_200_OK)
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -146,6 +181,9 @@ def generate_random_request_id():
     while len(n_str) < 12:
         n_str = '0' + n_str
     return n_str
+
+
+
 
 # from rest_framework import viewsets
 # from rest_framework.response import Response
